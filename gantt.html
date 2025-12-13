@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gantt Chart</title>
+  <style>
+    :root {
+      --color-bg: #ffffff;
+      --color-text: #1a1a1a;
+      --color-border: #ebebeb;
+      --color-header-bg: #f8f8f8;
+      --color-accent: #4a90d9;
+      --event-list-width: 20%;
+      --timeline-header-height: 46px;
+      --chart-padding: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #ffffff;
+      color: var(--color-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: var(--color-header-bg);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .size-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .size-controls label {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .size-controls input {
+      width: 70px;
+      padding: 4px 8px;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background: var(--color-bg);
+      font-family: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn:hover {
+      background: var(--color-header-bg);
+    }
+
+    .btn-primary {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #3a7bc8;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    /* Dropdown */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      min-width: 120px;
+      z-index: 100;
+    }
+
+    .dropdown.open .dropdown-menu {
+      display: block;
+    }
+
+    .dropdown-item {
+      display: block;
+      width: 100%;
+      padding: 8px 12px;
+      border: none;
+      background: none;
+      text-align: left;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .dropdown-item:hover {
+      background: var(--color-header-bg);
+    }
+
+    .dropdown-item:first-child {
+      border-radius: 4px 4px 0 0;
+    }
+
+    .dropdown-item:last-child {
+      border-radius: 0 0 4px 4px;
+    }
+
+    /* Epic Popover */
+    .popover {
+      display: none;
+      position: fixed;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      width: 340px;
+      z-index: 200;
+    }
+
+    .popover.open {
+      display: block;
+    }
+
+    .popover-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--color-border);
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .popover-close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: #666;
+      line-height: 1;
+    }
+
+    .popover-close:hover {
+      color: #333;
+    }
+
+    .popover-body {
+      padding: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    .popover-footer {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-top: 1px solid var(--color-border);
+      background: var(--color-header-bg);
+      border-radius: 0 0 6px 6px;
+    }
+
+    .btn-danger {
+      background: #e74c3c;
+      border-color: #e74c3c;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+
+    .btn-danger[data-confirm="true"] {
+      background: #c0392b;
+      animation: pulse 0.5s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Settings Panel */
+    .settings-panel {
+      display: none;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-header-bg);
+      gap: 20px;
+    }
+
+    .settings-panel.open {
+      display: flex;
+    }
+
+    .setting-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .setting-group label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #666;
+    }
+
+    .setting-group input,
+    .setting-group select {
+      padding: 6px 10px;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .setting-group-reset {
+      margin-left: auto;
+    }
+
+    /* Chart Wrapper - the exportable area */
+    .chart-wrapper {
+      flex: 1;
+      padding: 20px;
+      overflow: auto;
+    }
+
+    .chart-container {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    /* Chart Title */
+    .chart-title {
+      padding: 16px 20px;
+      font-size: 20px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-bg);
+    }
+
+    /* Main Container */
+    .main-container {
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Event List (HTML side) */
+    .event-list {
+      width: var(--event-list-width);
+      flex-shrink: 0;
+      border-right: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .event-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      height: var(--timeline-header-height);
+      background: var(--color-header-bg);
+      border-bottom: 1px solid var(--color-border);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #666;
+    }
+
+    .event-list-body {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* Initiative (Swimlane) */
+    .initiative-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border);
+      cursor: pointer;
+      transition: background 0.15s;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .initiative-item:last-child {
+      border-bottom: none;
+    }
+
+    .initiative-item:hover {
+      background: var(--color-header-bg);
+    }
+
+    .initiative-name {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .initiative-desc {
+      font-size: 11px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+      gap: 12px;
+    }
+
+    .empty-state-text {
+      font-size: 13px;
+      color: #888;
+    }
+
+    /* Chart Area */
+    .chart-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Timeline Header (Quarter + Month labels) */
+    .timeline-header {
+      height: var(--timeline-header-height);
+      background: var(--color-header-bg);
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .timeline-quarters {
+      display: flex;
+    }
+
+    .quarter-label {
+      text-align: center;
+      padding: 8px 8px 2px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      box-sizing: border-box;
+    }
+
+    .timeline-months {
+      display: flex;
+    }
+
+    .month-label {
+      flex: 1;
+      text-align: center;
+      padding: 4px 8px;
+      font-size: 11px;
+      color: #888;
+    }
+
+    .month-label.quarter-end {
+      border-right: 1px solid var(--color-border);
+    }
+
+    /* HTML Chart Container */
+    .chart-grid-container {
+      flex: 1;
+      overflow: auto;
+      position: relative;
+    }
+
+    .chart-grid {
+      position: relative;
+      min-height: 100%;
+    }
+
+    /* Swimlane Row */
+    .swimlane {
+      position: relative;
+      display: flex;
+      border-bottom: 1px solid var(--color-border);
+      min-height: 60px;
+    }
+
+    .swimlane:last-child {
+      border-bottom: none;
+    }
+
+    .swimlane:nth-child(odd) {
+      background: #fcfcfc;
+    }
+
+    .swimlane:nth-child(even) {
+      background: #ffffff;
+    }
+
+    /* Month columns within swimlane */
+    .swimlane-grid {
+      display: flex;
+      flex: 1;
+      position: relative;
+    }
+
+    .month-cell {
+      flex: 1;
+      border-right: 1px dashed var(--color-border);
+      min-height: 100%;
+    }
+
+    .month-cell.quarter-end {
+      border-right: 1px solid var(--color-border);
+    }
+
+    .month-cell:last-child {
+      border-right: none;
+    }
+
+    /* Epic bars container */
+    .epic-bars-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+    }
+
+    /* Epic bar */
+    .epic-bar {
+      position: absolute;
+      border-radius: 4px;
+      padding: 0 8px;
+      color: #ffffff;
+      cursor: pointer;
+      pointer-events: auto;
+      box-sizing: border-box;
+      transition: box-shadow 0.15s;
+      display: flex;
+      align-items: center;
+    }
+
+    .epic-bar-text {
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.3;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      text-overflow: ellipsis;
+      word-break: break-word;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .epic-bar:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Grippers */
+    .epic-gripper {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+      cursor: ew-resize;
+      opacity: 0;
+      transition: opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .epic-gripper::after {
+      content: '';
+      width: 3px;
+      height: 16px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 2px;
+    }
+
+    .epic-gripper-start {
+      left: 0;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .epic-gripper-end {
+      right: 0;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .epic-bar:hover .epic-gripper {
+      opacity: 1;
+    }
+
+    .epic-bar.dragging {
+      opacity: 0.8;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-right">
+      <button class="btn btn-sm" id="btn-add-initiative">+ Initiative</button>
+      <button class="btn btn-sm" id="btn-add-epic">+ Epic</button>
+      <button class="btn btn-sm" id="btn-settings">⚙ Settings</button>
+      <div class="dropdown" id="export-dropdown">
+        <button class="btn btn-sm btn-primary" id="btn-export">Export ▾</button>
+        <div class="dropdown-menu">
+          <button class="dropdown-item" id="btn-export-svg">Export as SVG</button>
+          <button class="dropdown-item" id="btn-export-png">Export as PNG</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Panel (hidden by default) -->
+  <div class="settings-panel" id="settings-panel">
+    <div class="setting-group">
+      <label for="setting-title">Chart Title</label>
+      <input type="text" id="setting-title" value="Project Timeline">
+    </div>
+    <div class="setting-group">
+      <label for="setting-font">Font Family</label>
+      <select id="setting-font">
+        <option value="'Segoe UI', system-ui, sans-serif">Segoe UI (Default)</option>
+        <option value="Arial, sans-serif">Arial</option>
+        <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+        <option value="Georgia, serif">Georgia</option>
+        <option value="'Times New Roman', serif">Times New Roman</option>
+      </select>
+    </div>
+    <div class="setting-group">
+      <label for="setting-color-theme">Epic Color</label>
+      <select id="setting-color-theme">
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+        <option value="orange">Orange</option>
+        <option value="purple">Purple</option>
+        <option value="red">Red</option>
+        <option value="teal">Teal</option>
+        <option value="slate">Slate</option>
+      </select>
+    </div>
+    <div class="setting-group">
+      <label for="setting-start-month">View Start Month</label>
+      <input type="month" id="setting-start-month">
+    </div>
+    <div class="setting-group setting-group-reset">
+      <label>&nbsp;</label>
+      <button class="btn btn-sm btn-danger" id="btn-reset">Reset All Data</button>
+    </div>
+  </div>
+
+  <!-- Chart Wrapper (exportable area) -->
+  <div class="chart-wrapper">
+    <div class="chart-container" id="chart-container">
+      
+      <!-- Chart Title -->
+      <div class="chart-title" id="chart-title">Project Timeline</div>
+
+      <!-- Main Container -->
+      <main class="main-container">
+
+        <!-- Event List (HTML) -->
+        <aside class="event-list">
+          <div class="event-list-header">Initiatives</div>
+          <div class="event-list-body" id="event-list-body">
+            <!-- Initiative items rendered by JavaScript -->
+          </div>
+        </aside>
+
+        <!-- Chart Area -->
+        <section class="chart-area">
+          <!-- Timeline Header -->
+          <div class="timeline-header">
+            <div class="timeline-quarters" id="timeline-quarters">
+              <!-- Generated by JS -->
+            </div>
+            <div class="timeline-months" id="timeline-months">
+              <!-- Generated by JS -->
+            </div>
+          </div>
+
+          <!-- HTML Chart Grid -->
+          <div class="chart-grid-container" id="chart-grid-container">
+            <div class="chart-grid" id="chart-grid">
+              <!-- Grid and bars will be rendered by JavaScript -->
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Epic Edit Popover -->
+  <div class="popover" id="epic-popover">
+    <div class="popover-header">
+      <span id="popover-title">Edit Epic</span>
+      <button class="popover-close" id="popover-close">&times;</button>
+    </div>
+    <div class="popover-body">
+      <input type="hidden" id="epic-id">
+      <input type="hidden" id="epic-mode">
+      <div class="form-group">
+        <label for="epic-name">Name</label>
+        <input type="text" id="epic-name" placeholder="Epic name">
+      </div>
+      <div class="form-group">
+        <label for="epic-initiative">Initiative</label>
+        <select id="epic-initiative"></select>
+      </div>
+      <div class="form-group">
+        <label for="epic-desc">Description</label>
+        <textarea id="epic-desc" placeholder="Brief description"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="epic-start">Start Date</label>
+          <input type="date" id="epic-start">
+        </div>
+        <div class="form-group">
+          <label for="epic-end">End Date</label>
+          <input type="date" id="epic-end">
+        </div>
+      </div>
+    </div>
+    <div class="popover-footer">
+      <button class="btn btn-sm btn-danger" id="epic-delete" data-confirm="false">Delete</button>
+      <button class="btn btn-sm btn-primary" id="epic-save">Save</button>
+    </div>
+  </div>
+
+  <!-- Initiative Edit Popover -->
+  <div class="popover" id="initiative-popover">
+    <div class="popover-header">
+      <span id="initiative-popover-title">Edit Initiative</span>
+      <button class="popover-close" id="initiative-popover-close">&times;</button>
+    </div>
+    <div class="popover-body">
+      <input type="hidden" id="initiative-id">
+      <input type="hidden" id="initiative-mode">
+      <div class="form-group">
+        <label for="initiative-name">Name</label>
+        <input type="text" id="initiative-name" placeholder="Initiative name">
+      </div>
+      <div class="form-group">
+        <label for="initiative-desc">Description</label>
+        <textarea id="initiative-desc" placeholder="Brief description"></textarea>
+      </div>
+    </div>
+    <div class="popover-footer">
+      <button class="btn btn-sm btn-danger" id="initiative-delete" data-confirm="false">Delete</button>
+      <button class="btn btn-sm btn-primary" id="initiative-save">Save</button>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // Data Structures
+    // ============================================
+    
+    function getNextQuarterStart() {
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      
+      // Quarter start months: 0 (Jan), 3 (Apr), 6 (Jul), 9 (Oct)
+      const quarterStartMonths = [0, 3, 6, 9];
+      
+      // Find the next quarter start
+      for (const month of quarterStartMonths) {
+        if (month > currentMonth) {
+          return new Date(currentYear, month, 1);
+        }
+      }
+      
+      // If we're past October, next quarter is January of next year
+      return new Date(currentYear + 1, 0, 1);
+    }
+    
+    const defaultState = {
+      config: {
+        title: 'Project Timeline',
+        viewStartDate: getNextQuarterStart(),
+        viewMonths: 12,
+        fontFamily: "'Segoe UI', system-ui, sans-serif",
+        colorTheme: 'blue'
+      },
+      initiatives: [],
+      epics: []
+    };
+
+    const state = {
+      config: { ...defaultState.config },
+      initiatives: [],
+      epics: []
+    };
+
+    // Color theme definitions
+    const colorThemes = {
+      blue: { epicColor: '#4a90d9', name: 'Blue' },
+      green: { epicColor: '#50b87d', name: 'Green' },
+      orange: { epicColor: '#e67e22', name: 'Orange' },
+      purple: { epicColor: '#9b59b6', name: 'Purple' },
+      red: { epicColor: '#e74c3c', name: 'Red' },
+      teal: { epicColor: '#1abc9c', name: 'Teal' },
+      slate: { epicColor: '#34495e', name: 'Slate' }
+    };
+
+    function getEpicColor() {
+      return colorThemes[state.config.colorTheme]?.epicColor || '#4a90d9';
+    }
+
+    // ============================================
+    // LOCAL STORAGE PERSISTENCE
+    // ============================================
+    
+    const STORAGE_KEY = 'gantt-chart-data';
+    
+    function saveState() {
+      const data = {
+        config: {
+          ...state.config,
+          viewStartDate: state.config.viewStartDate.toISOString()
+        },
+        initiatives: state.initiatives,
+        epics: state.epics.map(epic => ({
+          ...epic,
+          startDate: epic.startDate.toISOString(),
+          endDate: epic.endDate.toISOString()
+        }))
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+    
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return false;
+      
+      try {
+        const data = JSON.parse(saved);
+        
+        // Restore config
+        state.config = {
+          ...data.config,
+          viewStartDate: new Date(data.config.viewStartDate)
+        };
+        
+        // Restore initiatives (support legacy 'themes' field)
+        state.initiatives = data.initiatives || data.themes || [];
+        
+        // Restore epics with dates (support legacy 'themeId' field)
+        state.epics = (data.epics || []).map(epic => ({
+          ...epic,
+          initiativeId: epic.initiativeId || epic.themeId,
+          startDate: new Date(epic.startDate),
+          endDate: new Date(epic.endDate)
+        }));
+        
+        return true;
+      } catch (e) {
+        console.error('Failed to load saved state:', e);
+        return false;
+      }
+    }
+    
+    function clearSavedState() {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
+    // ============================================
+    // HTML Chart Renderer
+    // ============================================
+    function dateToPercent(date, config) {
+      const viewStart = config.viewStartDate;
+      const viewMonths = config.viewMonths;
+      
+      // Calculate the difference in months + fractional days within month
+      const startYear = viewStart.getFullYear();
+      const startMonth = viewStart.getMonth();
+      const startDay = viewStart.getDate();
+      
+      const dateYear = date.getFullYear();
+      const dateMonth = date.getMonth();
+      const dateDay = date.getDate();
+      
+      // Total months difference
+      const monthsDiff = (dateYear - startYear) * 12 + (dateMonth - startMonth);
+      
+      // Days into the month as a fraction (approximate)
+      const daysInMonth = new Date(dateYear, dateMonth + 1, 0).getDate();
+      const dayFraction = (dateDay - 1) / daysInMonth;
+      
+      // Subtract the start day fraction
+      const startDaysInMonth = new Date(startYear, startMonth + 1, 0).getDate();
+      const startDayFraction = (startDay - 1) / startDaysInMonth;
+      
+      const totalMonthsOffset = monthsDiff + dayFraction - startDayFraction;
+      
+      return (totalMonthsOffset / viewMonths) * 100;
+    }
+
+    function calculateEpicStacking(epics) {
+      const sorted = [...epics].sort((a, b) => a.startDate - b.startDate);
+      const rows = [];
+      const epicRows = new Map();
+      
+      for (const epic of sorted) {
+        let assignedRow = -1;
+        
+        for (let r = 0; r < rows.length; r++) {
+          const lastEndInRow = rows[r];
+          if (epic.startDate >= lastEndInRow) {
+            assignedRow = r;
+            rows[r] = epic.endDate;
+            break;
+          }
+        }
+        
+        if (assignedRow === -1) {
+          assignedRow = rows.length;
+          rows.push(epic.endDate);
+        }
+        
+        epicRows.set(epic.id, assignedRow);
+      }
+      
+      return { epicRows, totalRows: rows.length };
+    }
+
+    // ============================================
+    // DRAG FUNCTIONALITY
+    // ============================================
+    
+    let dragState = null;
+    
+    function startDrag(e, epic, handle, container) {
+      e.preventDefault();
+      
+      const chartGrid = document.getElementById('chart-grid');
+      const rect = chartGrid.getBoundingClientRect();
+      
+      dragState = {
+        epic,
+        handle, // 'start' or 'end'
+        containerRect: rect,
+        initialX: e.clientX,
+        originalStart: new Date(epic.startDate),
+        originalEnd: new Date(epic.endDate)
+      };
+      
+      const bar = document.querySelector(`[data-epic-id="${epic.id}"]`);
+      if (bar) {
+        bar.classList.add('dragging');
+      }
+      
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('mouseup', endDrag);
+    }
+    
+    function onDrag(e) {
+      if (!dragState) return;
+      
+      const { epic, handle, containerRect, originalStart, originalEnd } = dragState;
+      
+      // Calculate position as percentage of container width
+      const x = e.clientX - containerRect.left;
+      const percent = (x / containerRect.width) * 100;
+      
+      // Convert percent to date
+      const newDate = percentToDate(percent, state.config);
+      
+      // Update the appropriate date
+      if (handle === 'start') {
+        // Don't allow start to go past end
+        if (newDate < originalEnd) {
+          epic.startDate = newDate;
+        }
+      } else {
+        // Don't allow end to go before start
+        if (newDate > originalStart) {
+          epic.endDate = newDate;
+        }
+      }
+      
+      // Re-render just the bar position for responsiveness
+      updateBarPosition(epic);
+    }
+    
+    function endDrag(e) {
+      if (!dragState) return;
+      
+      const bar = document.querySelector(`[data-epic-id="${dragState.epic.id}"]`);
+      if (bar) {
+        bar.classList.remove('dragging');
+        bar.classList.add('was-dragging');
+      }
+      
+      dragState = null;
+      
+      document.removeEventListener('mousemove', onDrag);
+      document.removeEventListener('mouseup', endDrag);
+      
+      // Full re-render to fix any stacking issues
+      render();
+    }
+    
+    function percentToDate(percent, config) {
+      const viewStart = config.viewStartDate;
+      const viewMonths = config.viewMonths;
+      
+      // Clamp percent to valid range
+      percent = Math.max(0, Math.min(100, percent));
+      
+      // Convert percent to months offset
+      const monthsOffset = (percent / 100) * viewMonths;
+      
+      const startYear = viewStart.getFullYear();
+      const startMonth = viewStart.getMonth();
+      const startDay = viewStart.getDate();
+      
+      // Calculate target month and fractional day
+      const totalMonths = startMonth + monthsOffset;
+      const targetMonth = Math.floor(totalMonths) % 12;
+      const targetYear = startYear + Math.floor((startMonth + monthsOffset) / 12);
+      
+      // Get days in target month
+      const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+      
+      // Calculate day from fractional part
+      const monthFraction = totalMonths - Math.floor(totalMonths);
+      let targetDay = Math.round(monthFraction * daysInMonth) + 1;
+      targetDay = Math.max(1, Math.min(daysInMonth, targetDay));
+      
+      return new Date(targetYear, targetMonth, targetDay);
+    }
+    
+    function updateBarPosition(epic) {
+      const bar = document.querySelector(`[data-epic-id="${epic.id}"]`);
+      if (!bar) return;
+      
+      const startPercent = dateToPercent(epic.startDate, state.config);
+      const endPercent = dateToPercent(epic.endDate, state.config);
+      
+      const clampedStart = Math.max(0, startPercent);
+      const clampedEnd = Math.min(100, endPercent);
+      const widthPercent = clampedEnd - clampedStart;
+      
+      bar.style.left = `${clampedStart}%`;
+      bar.style.width = `${Math.max(2, widthPercent)}%`;
+    }
+
+    function renderChart() {
+      const chartGrid = document.getElementById('chart-grid');
+      const initiativeListContainer = document.getElementById('event-list-body');
+      
+      chartGrid.innerHTML = '';
+      
+      // Group epics by initiative
+      const epicsByInitiative = new Map();
+      for (const initiative of state.initiatives) {
+        epicsByInitiative.set(initiative.id, state.epics.filter(e => e.initiativeId === initiative.id));
+      }
+      
+      // Bar sizing constants
+      const barHeight = 36;
+      const barGap = 4;
+      const swimlanePadding = 12;
+      const minSwimlaneHeight = 60;
+      
+      // Get initiative item natural heights first
+      const initiativeItems = initiativeListContainer.querySelectorAll('.initiative-item');
+      const initiativeContentHeights = Array.from(initiativeItems).map(item => {
+        item.style.height = 'auto';
+        item.style.minHeight = 'unset';
+        return item.offsetHeight;
+      });
+      
+      // Calculate heights based on both initiative content and epic content
+      const swimlaneHeights = state.initiatives.map((initiative, index) => {
+        const initiativeEpics = epicsByInitiative.get(initiative.id) || [];
+        const initiativeContentHeight = initiativeContentHeights[index] || minSwimlaneHeight;
+        
+        if (initiativeEpics.length === 0) {
+          return Math.max(minSwimlaneHeight, initiativeContentHeight);
+        }
+        const { totalRows } = calculateEpicStacking(initiativeEpics);
+        const epicContentHeight = (totalRows * (barHeight + barGap)) - barGap + (swimlanePadding * 2);
+        return Math.max(minSwimlaneHeight, epicContentHeight, initiativeContentHeight);
+      });
+      
+      // Render each swimlane
+      state.initiatives.forEach((initiative, initiativeIndex) => {
+        const swimlaneHeight = swimlaneHeights[initiativeIndex];
+        
+        const swimlane = document.createElement('div');
+        swimlane.className = 'swimlane';
+        swimlane.style.height = `${swimlaneHeight}px`;
+        
+        // Create month grid cells with proper quarter boundaries
+        const swimlaneGrid = document.createElement('div');
+        swimlaneGrid.className = 'swimlane-grid';
+        
+        const startMonth = state.config.viewStartDate.getMonth();
+        
+        for (let m = 0; m < state.config.viewMonths; m++) {
+          const monthCell = document.createElement('div');
+          monthCell.className = 'month-cell';
+          
+          // Check if this calendar month is a quarter-end (Mar=2, Jun=5, Sep=8, Dec=11)
+          const calendarMonth = (startMonth + m) % 12;
+          const isQuarterEnd = (calendarMonth === 2 || calendarMonth === 5 || calendarMonth === 8 || calendarMonth === 11);
+          
+          if (isQuarterEnd && m < state.config.viewMonths - 1) {
+            monthCell.classList.add('quarter-end');
+          }
+          swimlaneGrid.appendChild(monthCell);
+        }
+        
+        swimlane.appendChild(swimlaneGrid);
+        
+        // Create epic bars layer
+        const barsLayer = document.createElement('div');
+        barsLayer.className = 'epic-bars-layer';
+        
+        const initiativeEpics = epicsByInitiative.get(initiative.id) || [];
+        
+        if (initiativeEpics.length > 0) {
+          const { epicRows, totalRows } = calculateEpicStacking(initiativeEpics);
+          const rowHeight = barHeight + barGap;
+          const stackHeight = totalRows * rowHeight - barGap;
+          const stackYStart = (swimlaneHeight - stackHeight) / 2;
+          
+          for (const epic of initiativeEpics) {
+            const row = epicRows.get(epic.id);
+            const startPercent = dateToPercent(epic.startDate, state.config);
+            const endPercent = dateToPercent(epic.endDate, state.config);
+            
+            // Skip if entirely outside view
+            if (endPercent <= 0 || startPercent >= 100) continue;
+            
+            // Clamp to visible area
+            const clampedStart = Math.max(0, startPercent);
+            const clampedEnd = Math.min(100, endPercent);
+            const widthPercent = clampedEnd - clampedStart;
+            
+            const top = stackYStart + (row * rowHeight);
+            
+            const bar = document.createElement('div');
+            bar.className = 'epic-bar';
+            bar.setAttribute('data-epic-id', epic.id);
+            bar.style.cssText = `
+              left: ${clampedStart}%;
+              width: ${Math.max(2, widthPercent)}%;
+              top: ${top}px;
+              height: ${barHeight}px;
+              background-color: ${getEpicColor()};
+            `;
+            
+            // Start gripper
+            const gripperStart = document.createElement('div');
+            gripperStart.className = 'epic-gripper epic-gripper-start';
+            gripperStart.addEventListener('mousedown', (e) => {
+              e.stopPropagation();
+              startDrag(e, epic, 'start', barsLayer);
+            });
+            bar.appendChild(gripperStart);
+            
+            // Text
+            const textSpan = document.createElement('span');
+            textSpan.className = 'epic-bar-text';
+            textSpan.textContent = epic.name;
+            bar.appendChild(textSpan);
+            
+            // End gripper
+            const gripperEnd = document.createElement('div');
+            gripperEnd.className = 'epic-gripper epic-gripper-end';
+            gripperEnd.addEventListener('mousedown', (e) => {
+              e.stopPropagation();
+              startDrag(e, epic, 'end', barsLayer);
+            });
+            bar.appendChild(gripperEnd);
+            
+            bar.addEventListener('click', (e) => {
+              if (bar.classList.contains('was-dragging')) {
+                bar.classList.remove('was-dragging');
+                return;
+              }
+              e.stopPropagation();
+              openPopover(epic, bar);
+            });
+            
+            barsLayer.appendChild(bar);
+          }
+        }
+        
+        swimlane.appendChild(barsLayer);
+        chartGrid.appendChild(swimlane);
+      });
+      
+      // Sync initiative list item heights to match swimlanes
+      initiativeItems.forEach((item, index) => {
+        if (index < swimlaneHeights.length) {
+          item.style.height = `${swimlaneHeights[index]}px`;
+          item.style.minHeight = 'unset';
+        }
+      });
+    }
+
+    function render() {
+      renderInitiativeList();
+      renderChart();
+      saveState();
+    }
+
+    // ============================================
+    // Popover Management
+    // ============================================
+    function formatDateForInput(date) {
+      return date.toISOString().split('T')[0];
+    }
+
+    function parseDateFromInput(str) {
+      const [year, month, day] = str.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    function populateInitiativeSelect() {
+      const select = document.getElementById('epic-initiative');
+      select.innerHTML = '';
+      
+      // Add placeholder option
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Select an initiative...';
+      select.appendChild(placeholder);
+      
+      for (const initiative of state.initiatives) {
+        const option = document.createElement('option');
+        option.value = initiative.id;
+        option.textContent = initiative.name;
+        select.appendChild(option);
+      }
+    }
+
+    function openPopoverForNew(anchorElement) {
+      const popover = document.getElementById('epic-popover');
+      
+      // Set mode and header
+      document.getElementById('epic-mode').value = 'create';
+      document.getElementById('popover-title').textContent = 'New Epic';
+      document.getElementById('epic-delete').classList.add('hidden');
+      
+      // Clear/default form values
+      document.getElementById('epic-id').value = '';
+      document.getElementById('epic-name').value = '';
+      document.getElementById('epic-initiative').value = '';
+      document.getElementById('epic-desc').value = '';
+      
+      // Default dates: start today, end 1 month from now
+      const today = new Date();
+      const nextMonth = new Date(today);
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      document.getElementById('epic-start').value = formatDateForInput(today);
+      document.getElementById('epic-end').value = formatDateForInput(nextMonth);
+      
+      // Position popover below button
+      const btnRect = anchorElement.getBoundingClientRect();
+      let left = btnRect.left;
+      let top = btnRect.bottom + 8;
+      
+      // Keep within viewport
+      const popoverWidth = 280;
+      const popoverHeight = 340;
+      
+      if (left + popoverWidth > window.innerWidth - 10) {
+        left = window.innerWidth - popoverWidth - 10;
+      }
+      if (top + popoverHeight > window.innerHeight - 10) {
+        top = btnRect.top - popoverHeight - 8;
+      }
+      
+      popover.style.left = `${left}px`;
+      popover.style.top = `${top}px`;
+      popover.classList.add('open');
+      
+      // Focus name field
+      document.getElementById('epic-name').focus();
+    }
+
+    function openPopover(epic, rect) {
+      const popover = document.getElementById('epic-popover');
+      
+      // Set mode and header
+      document.getElementById('epic-mode').value = 'edit';
+      document.getElementById('popover-title').textContent = 'Edit Epic';
+      document.getElementById('epic-delete').classList.remove('hidden');
+      resetDeleteButton();
+      
+      // Populate form
+      document.getElementById('epic-id').value = epic.id;
+      document.getElementById('epic-initiative').value = epic.initiativeId;
+      document.getElementById('epic-name').value = epic.name;
+      document.getElementById('epic-desc').value = epic.description;
+      document.getElementById('epic-start').value = formatDateForInput(epic.startDate);
+      document.getElementById('epic-end').value = formatDateForInput(epic.endDate);
+      
+      // Position popover near the bar
+      const barRect = rect.getBoundingClientRect();
+      let left = barRect.left + barRect.width / 2 - 140; // Center on bar
+      let top = barRect.bottom + 8;
+      
+      // Keep within viewport
+      const popoverWidth = 280;
+      const popoverHeight = 340;
+      
+      if (left < 10) left = 10;
+      if (left + popoverWidth > window.innerWidth - 10) {
+        left = window.innerWidth - popoverWidth - 10;
+      }
+      if (top + popoverHeight > window.innerHeight - 10) {
+        top = barRect.top - popoverHeight - 8;
+      }
+      
+      popover.style.left = `${left}px`;
+      popover.style.top = `${top}px`;
+      popover.classList.add('open');
+    }
+
+    function closePopover() {
+      document.getElementById('epic-popover').classList.remove('open');
+      resetDeleteButton();
+    }
+
+    function generateId() {
+      return 'e' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    }
+
+    function saveEpic() {
+      const mode = document.getElementById('epic-mode').value;
+      const id = document.getElementById('epic-id').value;
+      const initiativeId = document.getElementById('epic-initiative').value;
+      const name = document.getElementById('epic-name').value.trim();
+      const description = document.getElementById('epic-desc').value.trim();
+      const startDate = parseDateFromInput(document.getElementById('epic-start').value);
+      const endDate = parseDateFromInput(document.getElementById('epic-end').value);
+      
+      if (!name) {
+        alert('Please enter an epic name');
+        return;
+      }
+      
+      if (!initiativeId) {
+        if (state.initiatives.length === 0) {
+          alert('Please create an initiative first');
+        } else {
+          alert('Please select an initiative');
+        }
+        return;
+      }
+      
+      if (endDate <= startDate) {
+        alert('End date must be after start date');
+        return;
+      }
+      
+      if (mode === 'create') {
+        // Create new epic
+        const newEpic = {
+          id: generateId(),
+          initiativeId,
+          name,
+          description,
+          startDate,
+          endDate
+        };
+        state.epics.push(newEpic);
+      } else {
+        // Update existing epic
+        const epic = state.epics.find(e => e.id === id);
+        if (epic) {
+          epic.initiativeId = initiativeId;
+          epic.name = name;
+          epic.description = description;
+          epic.startDate = startDate;
+          epic.endDate = endDate;
+        }
+      }
+      
+      closePopover();
+      render();
+    }
+
+    function deleteEpic(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const btn = document.getElementById('epic-delete');
+      const isConfirming = btn.getAttribute('data-confirm') === 'true';
+      
+      if (!isConfirming) {
+        // First click - show confirm state
+        btn.setAttribute('data-confirm', 'true');
+        btn.textContent = 'Confirm?';
+        return;
+      }
+      
+      // Second click - actually delete
+      const id = document.getElementById('epic-id').value;
+      const index = state.epics.findIndex(ep => ep.id === id);
+      if (index !== -1) {
+        state.epics.splice(index, 1);
+      }
+      
+      closePopover();
+      render();
+    }
+
+    function resetDeleteButton() {
+      const btn = document.getElementById('epic-delete');
+      btn.setAttribute('data-confirm', 'false');
+      btn.textContent = 'Delete';
+    }
+
+    // ============================================
+    // Initiative Popover Management
+    // ============================================
+    function openInitiativePopoverForNew(anchorElement) {
+      const popover = document.getElementById('initiative-popover');
+      
+      // Set mode and header
+      document.getElementById('initiative-mode').value = 'create';
+      document.getElementById('initiative-popover-title').textContent = 'New Initiative';
+      document.getElementById('initiative-delete').classList.add('hidden');
+      
+      // Clear/default form values
+      document.getElementById('initiative-id').value = '';
+      document.getElementById('initiative-name').value = '';
+      document.getElementById('initiative-desc').value = '';
+      
+      // Position popover below button
+      const btnRect = anchorElement.getBoundingClientRect();
+      let left = btnRect.left;
+      let top = btnRect.bottom + 8;
+      
+      // Keep within viewport
+      const popoverWidth = 280;
+      const popoverHeight = 200;
+      
+      if (left + popoverWidth > window.innerWidth - 10) {
+        left = window.innerWidth - popoverWidth - 10;
+      }
+      if (top + popoverHeight > window.innerHeight - 10) {
+        top = btnRect.top - popoverHeight - 8;
+      }
+      
+      popover.style.left = `${left}px`;
+      popover.style.top = `${top}px`;
+      popover.classList.add('open');
+      
+      // Focus name field
+      document.getElementById('initiative-name').focus();
+    }
+
+    function openInitiativePopover(initiative, anchorElement) {
+      const popover = document.getElementById('initiative-popover');
+      
+      // Set mode and header
+      document.getElementById('initiative-mode').value = 'edit';
+      document.getElementById('initiative-popover-title').textContent = 'Edit Initiative';
+      document.getElementById('initiative-delete').classList.remove('hidden');
+      resetInitiativeDeleteButton();
+      
+      // Populate form
+      document.getElementById('initiative-id').value = initiative.id;
+      document.getElementById('initiative-name').value = initiative.name;
+      document.getElementById('initiative-desc').value = initiative.description;
+      
+      // Position popover near the initiative item
+      const itemRect = anchorElement.getBoundingClientRect();
+      let left = itemRect.right + 8;
+      let top = itemRect.top;
+      
+      // Keep within viewport
+      const popoverWidth = 280;
+      const popoverHeight = 280;
+      
+      if (left + popoverWidth > window.innerWidth - 10) {
+        left = itemRect.left - popoverWidth - 8;
+      }
+      if (top + popoverHeight > window.innerHeight - 10) {
+        top = window.innerHeight - popoverHeight - 10;
+      }
+      
+      popover.style.left = `${left}px`;
+      popover.style.top = `${top}px`;
+      popover.classList.add('open');
+    }
+
+    function closeInitiativePopover() {
+      document.getElementById('initiative-popover').classList.remove('open');
+      resetInitiativeDeleteButton();
+    }
+
+    function saveInitiative() {
+      const mode = document.getElementById('initiative-mode').value;
+      const id = document.getElementById('initiative-id').value;
+      const name = document.getElementById('initiative-name').value.trim();
+      const description = document.getElementById('initiative-desc').value.trim();
+      
+      if (!name) {
+        alert('Please enter an initiative name');
+        return;
+      }
+      
+      if (mode === 'create') {
+        // Create new initiative
+        const newInitiative = {
+          id: generateId(),
+          name,
+          description
+        };
+        state.initiatives.push(newInitiative);
+      } else {
+        // Update existing initiative
+        const initiative = state.initiatives.find(t => t.id === id);
+        if (initiative) {
+          initiative.name = name;
+          initiative.description = description;
+        }
+      }
+      
+      closeInitiativePopover();
+      populateInitiativeSelect();
+      render();
+    }
+
+    function deleteInitiative(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const btn = document.getElementById('initiative-delete');
+      const isConfirming = btn.getAttribute('data-confirm') === 'true';
+      
+      if (!isConfirming) {
+        // First click - show confirm state
+        btn.setAttribute('data-confirm', 'true');
+        btn.textContent = 'Confirm?';
+        return;
+      }
+      
+      // Second click - actually delete
+      const id = document.getElementById('initiative-id').value;
+      
+      // Check if initiative has epics
+      const hasEpics = state.epics.some(ep => ep.initiativeId === id);
+      if (hasEpics) {
+        alert('Cannot delete initiative with epics. Remove or reassign epics first.');
+        resetInitiativeDeleteButton();
+        return;
+      }
+      
+      const index = state.initiatives.findIndex(t => t.id === id);
+      if (index !== -1) {
+        state.initiatives.splice(index, 1);
+      }
+      
+      closeInitiativePopover();
+      populateInitiativeSelect();
+      render();
+    }
+
+    function resetInitiativeDeleteButton() {
+      const btn = document.getElementById('initiative-delete');
+      btn.setAttribute('data-confirm', 'false');
+      btn.textContent = 'Delete';
+    }
+
+    function renderInitiativeList() {
+      const container = document.getElementById('event-list-body');
+      container.innerHTML = '';
+      
+      // Show empty state if no initiatives
+      if (state.initiatives.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.innerHTML = `
+          <div class="empty-state-text">Add an initiative to start</div>
+          <button class="btn btn-sm btn-primary" id="empty-add-initiative">+ Initiative</button>
+        `;
+        container.appendChild(emptyState);
+        
+        // Add click handler for the button
+        document.getElementById('empty-add-initiative').addEventListener('click', (e) => {
+          e.stopPropagation();
+          openInitiativePopoverForNew(e.target);
+        });
+        return;
+      }
+      
+      for (const initiative of state.initiatives) {
+        const item = document.createElement('div');
+        item.className = 'initiative-item';
+        item.setAttribute('data-initiative-id', initiative.id);
+        item.innerHTML = `
+          <div class="initiative-name">${escapeHtml(initiative.name)}</div>
+          <div class="initiative-desc">${escapeHtml(initiative.description)}</div>
+        `;
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openInitiativePopover(initiative, item);
+        });
+        container.appendChild(item);
+      }
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ============================================
+    // Event Handlers
+    // ============================================
+    function init() {
+      // Load saved state from localStorage
+      loadState();
+      
+      // Populate initiative select for popover
+      populateInitiativeSelect();
+      
+      // Settings toggle
+      document.getElementById('btn-settings').addEventListener('click', () => {
+        document.getElementById('settings-panel').classList.toggle('open');
+      });
+
+      // Add Initiative button
+      document.getElementById('btn-add-initiative').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openInitiativePopoverForNew(e.target);
+      });
+
+      // Add Epic button
+      document.getElementById('btn-add-epic').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openPopoverForNew(e.target);
+      });
+
+      // Export dropdown toggle
+      document.getElementById('btn-export').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('export-dropdown').classList.toggle('open');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        document.getElementById('export-dropdown').classList.remove('open');
+        
+        // Close epic popover if clicking outside
+        const epicPopover = document.getElementById('epic-popover');
+        if (epicPopover.classList.contains('open') && !epicPopover.contains(e.target)) {
+          closePopover();
+        }
+        
+        // Close initiative popover if clicking outside
+        const initiativePopover = document.getElementById('initiative-popover');
+        if (initiativePopover.classList.contains('open') && !initiativePopover.contains(e.target)) {
+          closeInitiativePopover();
+        }
+      });
+
+      // Epic Popover handlers
+      document.getElementById('popover-close').addEventListener('click', closePopover);
+      document.getElementById('epic-save').addEventListener('click', saveEpic);
+      document.getElementById('epic-delete').addEventListener('click', deleteEpic);
+      document.getElementById('epic-popover').addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Reset delete confirm state if clicking elsewhere in popover
+        if (e.target.id !== 'epic-delete') {
+          resetDeleteButton();
+        }
+      });
+
+      // Initiative Popover handlers
+      document.getElementById('initiative-popover-close').addEventListener('click', closeInitiativePopover);
+      document.getElementById('initiative-save').addEventListener('click', saveInitiative);
+      document.getElementById('initiative-delete').addEventListener('click', deleteInitiative);
+      document.getElementById('initiative-popover').addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Reset delete confirm state if clicking elsewhere in popover
+        if (e.target.id !== 'initiative-delete') {
+          resetInitiativeDeleteButton();
+        }
+      });
+
+      // Settings change handlers
+      document.getElementById('setting-title').addEventListener('input', (e) => {
+        state.config.title = e.target.value;
+        document.getElementById('chart-title').textContent = e.target.value;
+        saveState();
+      });
+
+      document.getElementById('setting-font').addEventListener('change', (e) => {
+        state.config.fontFamily = e.target.value;
+        document.getElementById('chart-container').style.fontFamily = e.target.value;
+        saveState();
+      });
+
+      document.getElementById('setting-color-theme').addEventListener('change', (e) => {
+        state.config.colorTheme = e.target.value;
+        render();
+      });
+
+      document.getElementById('setting-start-month').addEventListener('change', (e) => {
+        const [year, month] = e.target.value.split('-').map(Number);
+        if (year && month) {
+          state.config.viewStartDate = new Date(year, month - 1, 1);
+          updateMonthLabels();
+          render();
+        }
+      });
+
+      // Reset button
+      document.getElementById('btn-reset').addEventListener('click', () => {
+        if (confirm('This will delete all your initiatives and epics. Are you sure?')) {
+          clearSavedState();
+          // Reset state to defaults
+          state.config = { ...defaultState.config, viewStartDate: new Date(defaultState.config.viewStartDate) };
+          state.initiatives = [];
+          state.epics = [];
+          // Re-initialize UI
+          populateInitiativeSelect();
+          initializeSettings();
+          render();
+        }
+      });
+
+      // Initialize settings UI from state
+      initializeSettings();
+
+      // Re-render on window resize to keep alignment
+      window.addEventListener('resize', render);
+
+      // Initial render
+      render();
+    }
+
+    function initializeSettings() {
+      document.getElementById('setting-title').value = state.config.title;
+      document.getElementById('chart-title').textContent = state.config.title;
+      document.getElementById('setting-font').value = state.config.fontFamily;
+      document.getElementById('setting-color-theme').value = state.config.colorTheme;
+      
+      // Format as YYYY-MM for month input
+      const d = state.config.viewStartDate;
+      const monthValue = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      document.getElementById('setting-start-month').value = monthValue;
+      
+      // Apply initial font to chart
+      document.getElementById('chart-container').style.fontFamily = state.config.fontFamily;
+      
+      // Update month/quarter labels to match start date
+      updateMonthLabels();
+    }
+
+    function updateMonthLabels() {
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const quartersContainer = document.getElementById('timeline-quarters');
+      const monthsContainer = document.getElementById('timeline-months');
+      
+      const startMonth = state.config.viewStartDate.getMonth();
+      const startYear = state.config.viewStartDate.getFullYear();
+      const viewMonths = state.config.viewMonths;
+      
+      // Clear existing
+      quartersContainer.innerHTML = '';
+      monthsContainer.innerHTML = '';
+      
+      // Generate month labels and track quarter boundaries
+      const quarterBoundaries = []; // indices where quarters END (after Mar, Jun, Sep, Dec)
+      
+      for (let i = 0; i < viewMonths; i++) {
+        const monthIndex = (startMonth + i) % 12;
+        const yearOffset = Math.floor((startMonth + i) / 12);
+        const year = startYear + yearOffset;
+        
+        const monthLabel = document.createElement('div');
+        monthLabel.className = 'month-label';
+        monthLabel.textContent = monthNames[monthIndex];
+        
+        // Check if this month is a quarter-ending month (Mar=2, Jun=5, Sep=8, Dec=11)
+        const isQuarterEnd = (monthIndex === 2 || monthIndex === 5 || monthIndex === 8 || monthIndex === 11);
+        if (isQuarterEnd && i < viewMonths - 1) {
+          monthLabel.classList.add('quarter-end');
+          quarterBoundaries.push(i);
+        }
+        
+        monthsContainer.appendChild(monthLabel);
+      }
+      
+      // Generate quarter labels with proper widths
+      // Calculate which quarters are visible and how many months of each
+      let currentPos = 0;
+      
+      for (let i = 0; i < viewMonths; ) {
+        const monthIndex = (startMonth + i) % 12;
+        const yearOffset = Math.floor((startMonth + i) / 12);
+        const year = startYear + yearOffset;
+        const quarter = Math.floor(monthIndex / 3) + 1;
+        
+        // How many months until end of this quarter?
+        const monthsLeftInQuarter = 3 - (monthIndex % 3);
+        const monthsToShow = Math.min(monthsLeftInQuarter, viewMonths - i);
+        
+        const quarterLabel = document.createElement('div');
+        quarterLabel.className = 'quarter-label';
+        quarterLabel.textContent = `Q${quarter} ${year}`;
+        quarterLabel.style.flex = monthsToShow; // Width proportional to months shown
+        
+        // Add border if not the last quarter section
+        if (i + monthsToShow < viewMonths) {
+          quarterLabel.style.borderRight = '1px solid var(--color-border)';
+        }
+        
+        quartersContainer.appendChild(quarterLabel);
+        i += monthsToShow;
+      }
+    }
+
+    // Run on DOM ready
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+
+</body>
+</html>
