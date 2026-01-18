@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI-Native Content Platform Vision</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f8f9fa;
+            padding: 40px;
+            color: #1a1a2e;
+        }
+
+        .container {
+            max-width: 2000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 40px;
+        }
+
+        .title {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+
+        .title .subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stages {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stage {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stage-header {
+            background: #1a1a2e;
+            color: white;
+            padding: 16px 12px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+            min-height: 85px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stage-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .stage-header p {
+            font-size: 11px;
+            font-style: italic;
+            opacity: 0.85;
+            line-height: 1.4;
+        }
+
+        .stage-content {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            border-bottom: none;
+            border-radius: 0;
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .cluster {
+            background: white;
+            border-radius: 6px;
+            padding: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .cluster-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .capabilities {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .capability {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .capability-name {
+            font-size: 11px;
+            line-height: 1.3;
+            flex: 1;
+        }
+
+        .status {
+            font-size: 9px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status.shipped {
+            background: #2E3A8C;
+            color: white;
+        }
+
+        .status.in-progress {
+            background: #4A9BA8;
+            color: white;
+        }
+
+        .status.planned {
+            background: white;
+            color: #1a1a2e;
+            border: 1.5px solid #B8D4E8;
+        }
+
+        .outcome {
+            font-size: 10px;
+            color: #4A9BA8;
+            font-weight: 500;
+            padding-top: 8px;
+            border-top: 1px dashed #e0e0e0;
+            line-height: 1.4;
+        }
+
+        .outcome::before {
+            content: "→ ";
+        }
+
+        .legend-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .legend {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .footer {
+            text-align: center;
+        }
+
+        .key-message p {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1a2e;
+            font-style: italic;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .legend-box {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+        }
+
+        .legend-box.shipped {
+            background: #2E3A8C;
+        }
+
+        .legend-box.in-progress {
+            background: #4A9BA8;
+        }
+
+        .legend-box.planned {
+            background: white;
+            border: 1.5px solid #B8D4E8;
+        }
+
+        .spacer {
+            width: 120px;
+        }
+
+        .focus-indicator {
+            background: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 10px 12px;
+            margin-top: -8px;
+        }
+
+        .focus-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .focus-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .focus-label {
+            font-size: 9px;
+            font-weight: 600;
+            color: #666;
+            width: 32px;
+            text-transform: uppercase;
+        }
+
+        .focus-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .focus-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+            background: #e8e8e8;
+        }
+
+        .focus-dot.filled.eng {
+            background: #4A9BA8;
+            border-color: #3d8a96;
+        }
+
+        .focus-dot.filled.prod {
+            background: #7B68EE;
+            border-color: #6a5acd;
+        }
+
+        .focus-legend {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-left: 24px;
+            padding-left: 24px;
+            border-left: 1px solid #ddd;
+        }
+
+        .focus-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .focus-legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .focus-legend-dot.eng {
+            background: #4A9BA8;
+        }
+
+        .focus-legend-dot.prod {
+            background: #7B68EE;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app"></div>
+
+    <script>
+        // Embedded roadmap data - no external JSON file needed
+        const roadmapData = {
+  "title": "AI-Native Content Platform",
+  "subtitle": "Policy Lifecycle Capabilities & Investment Status",
+  "keyMessage": "Building the AI-native platform to scale from 1,000 to 10,000+ policies with a lean expert team",
+  "stages": [
+    {
+      "name": "Strategy & Research",
+      "description": "Discover new policies and maintain authoritative sources",
+      "engineeringFocus": 1,
+      "productFocus": 1,
+      "clusters": [
+        {
+          "name": "AI Assisted Policy Discovery",
+          "outcome": "Reduce research time from days to hours",
+          "capabilities": [
+            { "name": "NoSQL Claim Finder Tool", "status": "shipped" },
+            { "name": "AI Scoping Tool", "status": "shipped" },
+            { "name": "AI Policy Discovery Agents", "status": "planned" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Design",
+      "description": "Accelerate policy creation with standardized components",
+      "engineeringFocus": 4,
+      "productFocus": 2,
+      "clusters": [
+        {
+          "name": "Policy Design Platform",
+          "outcome": "Standardized tools that scale SME expertise",
+          "capabilities": [
+            { "name": "SPE Policy Builder", "status": "shipped" },
+            { "name": "JIRA to Policy Manager Integration", "status": "shipped" },
+            { "name": "Self-serve DDE Deployment", "status": "shipped" },
+            { "name": "Drug Policy Builder", "status": "in-progress" },
+            { "name": "SPE Logic Library", "status": "in-progress" }
+          ]
+        },
+        {
+          "name": "AI-Assisted Design",
+          "outcome": "AI handles repetitive work, humans handle nuance",
+          "capabilities": [
+            { "name": "AI-Generated DDE Specification", "status": "shipped" },
+            { "name": "AI-Assisted SPE Logic Definition", "status": "planned" },
+            { "name": "AI-Assisted Test Claim Generation", "status": "planned" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Development",
+      "description": "Automate code generation and deployment",
+      "engineeringFocus": 1,
+      "productFocus": 1,
+      "clusters": [
+        {
+          "name": "Engine Code Generation",
+          "outcome": "Remove engineering bottleneck from content creation",
+          "capabilities": [
+            { "name": "Standard Python Code Templates", "status": "in-progress" },
+            { "name": "Automated Python Code Generation", "status": "planned" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Validation",
+      "description": "Reduce validation cycles from weeks to days",
+      "engineeringFocus": 2,
+      "productFocus": 4,
+      "clusters": [
+        {
+          "name": "Automated Validation Infrastructure",
+          "outcome": "Eliminate 70% of manual validation overhead",
+          "capabilities": [
+            { "name": "NoSQL Claim Finder Tool", "status": "shipped" },
+            { "name": "Automated Validation Data Pipeline", "status": "shipped" }
+          ]
+        },
+        {
+          "name": "AI-Assisted Validation",
+          "outcome": "Focus SME time on edge cases, not data prep",
+          "capabilities": [
+            { "name": "Validation Workflow Analysis", "status": "in-progress" },
+            { "name": "AI-Assisted Validation Automation", "status": "planned" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Maintenance",
+      "description": "Proactive policy lifecycle management",
+      "engineeringFocus": 5,
+      "productFocus": 5,
+      "clusters": [
+        {
+          "name": "Reference Source Platform",
+          "outcome": "Single source of truth for regulatory content",
+          "capabilities": [
+            { "name": "Ref Doc Architecture Upgrade", "status": "in-progress" },
+            { "name": "Reference Source Management Tools", "status": "in-progress" },
+            { "name": "Automated Source Monitoring", "status": "planned" },
+            { "name": "AI-Assisted Version Management", "status": "planned" }
+          ]
+        },
+        {
+          "name": "Policy Lifecycle Management",
+          "outcome": "Proactive policy updates with minimal manual overhead",
+          "capabilities": [
+            { "name": "Automated Impact Analysis", "status": "planned" },
+            { "name": "Guided Policy Update Workflows", "status": "planned" },
+            { "name": "AI-Assisted Policy Updates", "status": "planned" }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+        // Status display mapping
+        const statusLabels = {
+            'shipped': 'Shipped',
+            'in-progress': 'In Progress',
+            'planned': 'Planned'
+        };
+
+        // Generate focus dots HTML
+        function renderFocusDots(level, type) {
+            let dots = '';
+            for (let i = 1; i <= 5; i++) {
+                const filled = i <= level ? 'filled' : '';
+                dots += `<div class="focus-dot ${filled} ${type}"></div>`;
+            }
+            return dots;
+        }
+
+        function renderDiagram(data) {
+            const app = document.getElementById('app');
+
+            // Build HTML
+            let html = `
+                <div class="title">
+                    <h1>${data.title}</h1>
+                    <p class="subtitle">${data.subtitle}</p>
+                </div>
+                <div class="stages">
+            `;
+
+            // Render each stage
+            for (const stage of data.stages) {
+                html += `
+                    <div class="stage">
+                        <div class="stage-header">
+                            <h2>${stage.name}</h2>
+                            <p>${stage.description}</p>
+                        </div>
+                        <div class="stage-content">
+                `;
+
+                // Render clusters
+                for (const cluster of stage.clusters) {
+                    html += `
+                        <div class="cluster">
+                            <div class="cluster-title">${cluster.name}</div>
+                            <div class="capabilities">
+                    `;
+
+                    // Render capabilities
+                    for (const cap of cluster.capabilities) {
+                        const statusClass = cap.status;
+                        const statusLabel = statusLabels[cap.status] || cap.status;
+                        html += `
+                            <div class="capability">
+                                <span class="capability-name">${cap.name}</span>
+                                <span class="status ${statusClass}">${statusLabel}</span>
+                            </div>
+                        `;
+                    }
+
+                    html += `
+                            </div>
+                            <div class="outcome">${cluster.outcome}</div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                        </div>
+                        <div class="focus-indicator">
+                            <div class="focus-row">
+                                <span class="focus-label">Eng</span>
+                                <div class="focus-dots">${renderFocusDots(stage.engineeringFocus || 0, 'eng')}</div>
+                            </div>
+                            <div class="focus-row">
+                                <span class="focus-label">Prod</span>
+                                <div class="focus-dots">${renderFocusDots(stage.productFocus || 0, 'prod')}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                </div>
+                <div class="legend-section">
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-box shipped"></div>
+                            <span>Shipped</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box in-progress"></div>
+                            <span>In Progress</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box planned"></div>
+                            <span>Planned</span>
+                        </div>
+                        <div class="focus-legend">
+                            <div class="focus-legend-item">
+                                <div class="focus-legend-dot eng"></div>
+                                <span>Engineering Focus</span>
+                            </div>
+                            <div class="focus-legend-item">
+                                <div class="focus-legend-dot prod"></div>
+                                <span>Product Focus</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer">
+                    <div class="key-message">
+                        <p>"${data.keyMessage}"</p>
+                    </div>
+                </div>
+            `;
+
+            app.innerHTML = html;
+        }
+
+        // Render immediately with embedded data
+        renderDiagram(roadmapData);
+    </script>
+</body>
+</html>
