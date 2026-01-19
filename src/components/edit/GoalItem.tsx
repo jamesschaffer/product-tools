@@ -1,43 +1,43 @@
 import { useState } from 'react';
 import { Button, Modal, ConfirmDialog } from '../ui';
-import { ThemeForm } from './ThemeForm';
+import { GoalForm } from './GoalForm';
 import { InitiativeForm } from './InitiativeForm';
 import { InitiativeItem } from './InitiativeItem';
-import type { Theme, Initiative, Feature, FeatureStatus } from '../../types';
+import type { Goal, Initiative, Deliverable, DeliverableStatus } from '../../types';
 
-interface ThemeItemProps {
-  theme: Theme;
+interface GoalItemProps {
+  goal: Goal;
   initiatives: Initiative[];
-  features: Feature[];
-  onUpdate: (theme: Theme) => void;
+  deliverables: Deliverable[];
+  onUpdate: (goal: Goal) => void;
   onDelete: (id: string) => void;
   onAddInitiative: (data: { name: string; idealOutcome: string }) => void;
   onUpdateInitiative: (initiative: Initiative) => void;
   onDeleteInitiative: (id: string) => void;
-  onAddFeature: (initiativeId: string, data: {
+  onAddDeliverable: (initiativeId: string, data: {
     name: string;
     description?: string;
-    status: FeatureStatus;
+    status: DeliverableStatus;
     startDate?: string;
     endDate?: string;
   }) => void;
-  onUpdateFeature: (feature: Feature) => void;
-  onDeleteFeature: (id: string) => void;
+  onUpdateDeliverable: (deliverable: Deliverable) => void;
+  onDeleteDeliverable: (id: string) => void;
 }
 
-export function ThemeItem({
-  theme,
+export function GoalItem({
+  goal,
   initiatives,
-  features,
+  deliverables,
   onUpdate,
   onDelete,
   onAddInitiative,
   onUpdateInitiative,
   onDeleteInitiative,
-  onAddFeature,
-  onUpdateFeature,
-  onDeleteFeature,
-}: ThemeItemProps) {
+  onAddDeliverable,
+  onUpdateDeliverable,
+  onDeleteDeliverable,
+}: GoalItemProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingInitiative, setIsAddingInitiative] = useState(false);
@@ -47,7 +47,7 @@ export function ThemeItem({
 
   const handleUpdate = (data: { name: string; description?: string; desiredOutcome: string }) => {
     onUpdate({
-      ...theme,
+      ...goal,
       ...data,
     });
     setIsEditing(false);
@@ -55,11 +55,11 @@ export function ThemeItem({
 
   const handleDelete = () => {
     if (hasInitiatives) return;
-    onDelete(theme.id);
+    onDelete(goal.id);
   };
 
-  const getInitiativeFeatures = (initiativeId: string) => {
-    return features.filter((f) => f.initiativeId === initiativeId).sort((a, b) => a.order - b.order);
+  const getInitiativeDeliverables = (initiativeId: string) => {
+    return deliverables.filter((d) => d.initiativeId === initiativeId).sort((a, b) => a.order - b.order);
   };
 
   return (
@@ -81,11 +81,11 @@ export function ThemeItem({
             </svg>
           </button>
           <div className="min-w-0 flex-1">
-            <h3 className="text-base font-semibold text-gray-900">{theme.name}</h3>
-            {theme.description && (
-              <p className="text-sm text-gray-600 mt-0.5">{theme.description}</p>
+            <h3 className="text-base font-semibold text-gray-900">{goal.name}</h3>
+            {goal.description && (
+              <p className="text-sm text-gray-600 mt-0.5">{goal.description}</p>
             )}
-            <p className="text-sm text-gray-500 mt-1">→ {theme.desiredOutcome}</p>
+            <p className="text-sm text-gray-500 mt-1">→ {goal.desiredOutcome}</p>
           </div>
         </div>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100">
@@ -113,12 +113,12 @@ export function ThemeItem({
               <InitiativeItem
                 key={initiative.id}
                 initiative={initiative}
-                features={getInitiativeFeatures(initiative.id)}
+                deliverables={getInitiativeDeliverables(initiative.id)}
                 onUpdate={onUpdateInitiative}
                 onDelete={onDeleteInitiative}
-                onAddFeature={(data) => onAddFeature(initiative.id, data)}
-                onUpdateFeature={onUpdateFeature}
-                onDeleteFeature={onDeleteFeature}
+                onAddDeliverable={(data) => onAddDeliverable(initiative.id, data)}
+                onUpdateDeliverable={onUpdateDeliverable}
+                onDeleteDeliverable={onDeleteDeliverable}
               />
             ))
           )}
@@ -136,10 +136,10 @@ export function ThemeItem({
       <Modal
         isOpen={isEditing}
         onClose={() => setIsEditing(false)}
-        title="Edit Theme"
+        title="Edit Goal"
       >
-        <ThemeForm
-          theme={theme}
+        <GoalForm
+          goal={goal}
           onSubmit={handleUpdate}
           onCancel={() => setIsEditing(false)}
         />
@@ -163,11 +163,11 @@ export function ThemeItem({
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={handleDelete}
-        title="Delete Theme"
+        title="Delete Goal"
         message={
           hasInitiatives
-            ? `Cannot delete "${theme.name}" because it has ${initiatives.length} initiative(s). Remove all initiatives first.`
-            : `Are you sure you want to delete "${theme.name}"? This action cannot be undone.`
+            ? `Cannot delete "${goal.name}" because it has ${initiatives.length} initiative(s). Remove all initiatives first.`
+            : `Are you sure you want to delete "${goal.name}"? This action cannot be undone.`
         }
         confirmLabel="Delete"
         variant="danger"

@@ -1,50 +1,48 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { dateToPercent, percentToDate, formatDateISO } from '../../utils';
-import type { Feature, FeatureStatus } from '../../types';
+import type { Deliverable, DeliverableStatus } from '../../types';
 
-interface FeatureBarProps {
-  feature: Feature;
+interface DeliverableBarProps {
+  deliverable: Deliverable;
   viewStart: Date;
   viewMonths: number;
   stackIndex: number;
   onUpdateDates: (startDate: string, endDate: string) => void;
 }
 
-const statusColors: Record<FeatureStatus, string> = {
+const statusColors: Record<DeliverableStatus, string> = {
   shipped: 'bg-slate-700 border-slate-800',
   'in-progress': 'bg-teal-500 border-teal-600',
   planned: 'bg-slate-200 border-slate-300',
 };
 
-const statusTextColors: Record<FeatureStatus, string> = {
+const statusTextColors: Record<DeliverableStatus, string> = {
   shipped: 'text-white',
   'in-progress': 'text-white',
   planned: 'text-slate-600',
 };
 
-export function FeatureBar({
-  feature,
+export function DeliverableBar({
+  deliverable,
   viewStart,
   viewMonths,
   stackIndex,
   onUpdateDates,
-}: FeatureBarProps) {
+}: DeliverableBarProps) {
   const barRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState<'left' | 'right' | null>(null);
   const [tempDates, setTempDates] = useState<{ start: string; end: string } | null>(null);
 
-  const startDate = tempDates?.start || feature.startDate!;
-  const endDate = tempDates?.end || feature.endDate!;
+  const startDate = tempDates?.start || deliverable.startDate!;
+  const endDate = tempDates?.end || deliverable.endDate!;
 
   const rawLeft = dateToPercent(new Date(startDate), viewStart, viewMonths);
   const rawRight = dateToPercent(new Date(endDate), viewStart, viewMonths);
 
-  // Clamp to visible range (0-100%)
   const left = Math.max(0, rawLeft);
   const right = Math.min(100, rawRight);
   const width = right - left;
 
-  // Don't render if entirely outside view window
   if (rawRight <= 0 || rawLeft >= 100 || width <= 0) {
     return null;
   }
@@ -54,9 +52,9 @@ export function FeatureBar({
       e.preventDefault();
       e.stopPropagation();
       setIsDragging(side);
-      setTempDates({ start: feature.startDate!, end: feature.endDate! });
+      setTempDates({ start: deliverable.startDate!, end: deliverable.endDate! });
     },
-    [feature.startDate, feature.endDate]
+    [deliverable.startDate, deliverable.endDate]
   );
 
   const handleMouseMove = useCallback(
@@ -113,14 +111,14 @@ export function FeatureBar({
   return (
     <div
       ref={barRef}
-      className={`absolute rounded border ${statusColors[feature.status]} ${isDragging ? 'opacity-80' : ''} group cursor-default`}
+      className={`absolute rounded border ${statusColors[deliverable.status]} ${isDragging ? 'opacity-80' : ''} group cursor-default`}
       style={{
         left: `${left}%`,
         width: `${Math.max(width, 2)}%`,
         top: `${topOffset}px`,
         height: `${barHeight}px`,
       }}
-      title={`${feature.name}\n${startDate} - ${endDate}`}
+      title={`${deliverable.name}\n${startDate} - ${endDate}`}
     >
       <div
         className="absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize hover:bg-black/10 rounded-l"
@@ -128,9 +126,9 @@ export function FeatureBar({
       />
 
       <div
-        className={`px-2 truncate text-[10px] font-medium leading-6 ${statusTextColors[feature.status]}`}
+        className={`px-2 truncate text-[10px] font-medium leading-6 ${statusTextColors[deliverable.status]}`}
       >
-        {feature.name}
+        {deliverable.name}
       </div>
 
       <div

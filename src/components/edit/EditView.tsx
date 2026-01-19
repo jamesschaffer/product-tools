@@ -1,43 +1,43 @@
 import { useState } from 'react';
 import { useRoadmap } from '../../context';
 import { Button, Modal } from '../ui';
-import { ThemeForm } from './ThemeForm';
-import { ThemeItem } from './ThemeItem';
-import type { Theme, Initiative, Feature, FeatureStatus } from '../../types';
+import { GoalForm } from './GoalForm';
+import { GoalItem } from './GoalItem';
+import type { Goal, Initiative, Deliverable, DeliverableStatus } from '../../types';
 
 export function EditView() {
   const { state, dispatch } = useRoadmap();
   const { roadmap } = state;
-  const [isAddingTheme, setIsAddingTheme] = useState(false);
+  const [isAddingGoal, setIsAddingGoal] = useState(false);
 
-  const sortedThemes = [...roadmap.themes].sort((a, b) => a.order - b.order);
+  const sortedGoals = [...roadmap.goals].sort((a, b) => a.order - b.order);
 
-  const getThemeInitiatives = (themeId: string) => {
+  const getGoalInitiatives = (goalId: string) => {
     return roadmap.initiatives
-      .filter((i) => i.themeId === themeId)
+      .filter((i) => i.goalId === goalId)
       .sort((a, b) => a.order - b.order);
   };
 
-  const getThemeFeatures = (themeId: string) => {
-    const initiativeIds = getThemeInitiatives(themeId).map((i) => i.id);
-    return roadmap.features.filter((f) => initiativeIds.includes(f.initiativeId));
+  const getGoalDeliverables = (goalId: string) => {
+    const initiativeIds = getGoalInitiatives(goalId).map((i) => i.id);
+    return roadmap.deliverables.filter((d) => initiativeIds.includes(d.initiativeId));
   };
 
-  const handleAddTheme = (data: { name: string; description?: string; desiredOutcome: string }) => {
-    dispatch({ type: 'ADD_THEME', payload: data });
-    setIsAddingTheme(false);
+  const handleAddGoal = (data: { name: string; description?: string; desiredOutcome: string }) => {
+    dispatch({ type: 'ADD_GOAL', payload: data });
+    setIsAddingGoal(false);
   };
 
-  const handleUpdateTheme = (theme: Theme) => {
-    dispatch({ type: 'UPDATE_THEME', payload: theme });
+  const handleUpdateGoal = (goal: Goal) => {
+    dispatch({ type: 'UPDATE_GOAL', payload: goal });
   };
 
-  const handleDeleteTheme = (id: string) => {
-    dispatch({ type: 'DELETE_THEME', payload: id });
+  const handleDeleteGoal = (id: string) => {
+    dispatch({ type: 'DELETE_GOAL', payload: id });
   };
 
-  const handleAddInitiative = (themeId: string, data: { name: string; idealOutcome: string }) => {
-    dispatch({ type: 'ADD_INITIATIVE', payload: { ...data, themeId } });
+  const handleAddInitiative = (goalId: string, data: { name: string; idealOutcome: string }) => {
+    dispatch({ type: 'ADD_INITIATIVE', payload: { ...data, goalId } });
   };
 
   const handleUpdateInitiative = (initiative: Initiative) => {
@@ -48,25 +48,25 @@ export function EditView() {
     dispatch({ type: 'DELETE_INITIATIVE', payload: id });
   };
 
-  const handleAddFeature = (
+  const handleAddDeliverable = (
     initiativeId: string,
     data: {
       name: string;
       description?: string;
-      status: FeatureStatus;
+      status: DeliverableStatus;
       startDate?: string;
       endDate?: string;
     }
   ) => {
-    dispatch({ type: 'ADD_FEATURE', payload: { ...data, initiativeId } });
+    dispatch({ type: 'ADD_DELIVERABLE', payload: { ...data, initiativeId } });
   };
 
-  const handleUpdateFeature = (feature: Feature) => {
-    dispatch({ type: 'UPDATE_FEATURE', payload: feature });
+  const handleUpdateDeliverable = (deliverable: Deliverable) => {
+    dispatch({ type: 'UPDATE_DELIVERABLE', payload: deliverable });
   };
 
-  const handleDeleteFeature = (id: string) => {
-    dispatch({ type: 'DELETE_FEATURE', payload: id });
+  const handleDeleteDeliverable = (id: string) => {
+    dispatch({ type: 'DELETE_DELIVERABLE', payload: id });
   };
 
   if (state.isLoading) {
@@ -83,57 +83,57 @@ export function EditView() {
         <div>
           <h2 className="text-lg font-medium text-gray-900">Edit Roadmap</h2>
           <p className="text-sm text-gray-500">
-            Manage themes, initiatives, and features
+            Manage goals, initiatives, and deliverables
           </p>
         </div>
-        <Button variant="primary" onClick={() => setIsAddingTheme(true)}>
-          + Add Theme
+        <Button variant="primary" onClick={() => setIsAddingGoal(true)}>
+          + Add Goal
         </Button>
       </div>
 
-      {sortedThemes.length === 0 ? (
+      {sortedGoals.length === 0 ? (
         <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-500">No themes yet</p>
+          <p className="text-gray-500">No goals yet</p>
           <p className="text-sm text-gray-400 mt-1">
-            Start by adding a theme to organize your roadmap
+            Start by adding a goal to organize your roadmap
           </p>
           <Button
             variant="primary"
-            onClick={() => setIsAddingTheme(true)}
+            onClick={() => setIsAddingGoal(true)}
             className="mt-4"
           >
-            Add Your First Theme
+            Add Your First Goal
           </Button>
         </div>
       ) : (
         <div className="space-y-4">
-          {sortedThemes.map((theme) => (
-            <ThemeItem
-              key={theme.id}
-              theme={theme}
-              initiatives={getThemeInitiatives(theme.id)}
-              features={getThemeFeatures(theme.id)}
-              onUpdate={handleUpdateTheme}
-              onDelete={handleDeleteTheme}
-              onAddInitiative={(data) => handleAddInitiative(theme.id, data)}
+          {sortedGoals.map((goal) => (
+            <GoalItem
+              key={goal.id}
+              goal={goal}
+              initiatives={getGoalInitiatives(goal.id)}
+              deliverables={getGoalDeliverables(goal.id)}
+              onUpdate={handleUpdateGoal}
+              onDelete={handleDeleteGoal}
+              onAddInitiative={(data) => handleAddInitiative(goal.id, data)}
               onUpdateInitiative={handleUpdateInitiative}
               onDeleteInitiative={handleDeleteInitiative}
-              onAddFeature={handleAddFeature}
-              onUpdateFeature={handleUpdateFeature}
-              onDeleteFeature={handleDeleteFeature}
+              onAddDeliverable={handleAddDeliverable}
+              onUpdateDeliverable={handleUpdateDeliverable}
+              onDeleteDeliverable={handleDeleteDeliverable}
             />
           ))}
         </div>
       )}
 
       <Modal
-        isOpen={isAddingTheme}
-        onClose={() => setIsAddingTheme(false)}
-        title="Add Theme"
+        isOpen={isAddingGoal}
+        onClose={() => setIsAddingGoal(false)}
+        title="Add Goal"
       >
-        <ThemeForm
-          onSubmit={handleAddTheme}
-          onCancel={() => setIsAddingTheme(false)}
+        <GoalForm
+          onSubmit={handleAddGoal}
+          onCancel={() => setIsAddingGoal(false)}
         />
       </Modal>
     </div>

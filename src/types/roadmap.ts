@@ -1,11 +1,11 @@
-export type FeatureStatus = 'shipped' | 'in-progress' | 'planned';
+export type DeliverableStatus = 'shipped' | 'in-progress' | 'planned';
 
-export interface Feature {
+export interface Deliverable {
   id: string;
   initiativeId: string;
   name: string;
   description?: string;
-  status: FeatureStatus;
+  status: DeliverableStatus;
   startDate?: string;
   endDate?: string;
   order: number;
@@ -13,13 +13,13 @@ export interface Feature {
 
 export interface Initiative {
   id: string;
-  themeId: string;
+  goalId: string;
   name: string;
   idealOutcome: string;
   order: number;
 }
 
-export interface Theme {
+export interface Goal {
   id: string;
   name: string;
   description?: string;
@@ -38,25 +38,25 @@ export interface RoadmapSettings {
 export interface Roadmap {
   id: string;
   title: string;
-  themes: Theme[];
+  goals: Goal[];
   initiatives: Initiative[];
-  features: Feature[];
+  deliverables: Deliverable[];
   settings: RoadmapSettings;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ThemeWithChildren extends Theme {
+export interface GoalWithChildren extends Goal {
   initiatives: InitiativeWithChildren[];
 }
 
 export interface InitiativeWithChildren extends Initiative {
-  features: Feature[];
+  deliverables: Deliverable[];
 }
 
 export interface GanttRow {
-  theme: Theme;
+  goal: Goal;
   initiative: Initiative;
-  scheduledFeatures: Feature[];
-  unscheduledFeatures: Feature[];
+  scheduledDeliverables: Deliverable[];
+  unscheduledDeliverables: Deliverable[];
 }

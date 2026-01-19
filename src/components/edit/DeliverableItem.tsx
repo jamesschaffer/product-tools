@@ -1,34 +1,34 @@
 import { useState } from 'react';
 import { Button, Badge, Modal, ConfirmDialog } from '../ui';
-import { FeatureForm } from './FeatureForm';
-import type { Feature, FeatureStatus } from '../../types';
+import { DeliverableForm } from './DeliverableForm';
+import type { Deliverable, DeliverableStatus } from '../../types';
 
-interface FeatureItemProps {
-  feature: Feature;
-  onUpdate: (feature: Feature) => void;
+interface DeliverableItemProps {
+  deliverable: Deliverable;
+  onUpdate: (deliverable: Deliverable) => void;
   onDelete: (id: string) => void;
 }
 
-export function FeatureItem({ feature, onUpdate, onDelete }: FeatureItemProps) {
+export function DeliverableItem({ deliverable, onUpdate, onDelete }: DeliverableItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const formatDateRange = () => {
-    if (!feature.startDate && !feature.endDate) return null;
-    const start = feature.startDate ? new Date(feature.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '?';
-    const end = feature.endDate ? new Date(feature.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '?';
+    if (!deliverable.startDate && !deliverable.endDate) return null;
+    const start = deliverable.startDate ? new Date(deliverable.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '?';
+    const end = deliverable.endDate ? new Date(deliverable.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '?';
     return `${start} - ${end}`;
   };
 
   const handleUpdate = (data: {
     name: string;
     description?: string;
-    status: FeatureStatus;
+    status: DeliverableStatus;
     startDate?: string;
     endDate?: string;
   }) => {
     onUpdate({
-      ...feature,
+      ...deliverable,
       ...data,
     });
     setIsEditing(false);
@@ -41,8 +41,8 @@ export function FeatureItem({ feature, onUpdate, onDelete }: FeatureItemProps) {
           <span className="text-gray-400">•</span>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-900 truncate">{feature.name}</span>
-              <Badge status={feature.status} />
+              <span className="text-sm text-gray-900 truncate">{deliverable.name}</span>
+              <Badge status={deliverable.status} />
             </div>
             {formatDateRange() && (
               <span className="text-xs text-gray-500">{formatDateRange()}</span>
@@ -62,10 +62,10 @@ export function FeatureItem({ feature, onUpdate, onDelete }: FeatureItemProps) {
       <Modal
         isOpen={isEditing}
         onClose={() => setIsEditing(false)}
-        title="Edit Feature"
+        title="Edit Deliverable"
       >
-        <FeatureForm
-          feature={feature}
+        <DeliverableForm
+          deliverable={deliverable}
           onSubmit={handleUpdate}
           onCancel={() => setIsEditing(false)}
         />
@@ -74,9 +74,9 @@ export function FeatureItem({ feature, onUpdate, onDelete }: FeatureItemProps) {
       <ConfirmDialog
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={() => onDelete(feature.id)}
-        title="Delete Feature"
-        message={`Are you sure you want to delete "${feature.name}"? This action cannot be undone.`}
+        onConfirm={() => onDelete(deliverable.id)}
+        title="Delete Deliverable"
+        message={`Are you sure you want to delete "${deliverable.name}"? This action cannot be undone.`}
         confirmLabel="Delete"
         variant="danger"
       />

@@ -1,96 +1,96 @@
-import type { Feature, Roadmap, Theme, Initiative } from '../types';
+import type { Deliverable, Roadmap, Goal, Initiative } from '../types';
 
-export interface StackedFeature extends Feature {
+export interface StackedDeliverable extends Deliverable {
   stackIndex: number;
 }
 
-export function calculateFeatureStacking(features: Feature[]): StackedFeature[] {
-  const scheduled = features.filter((f) => f.startDate && f.endDate);
+export function calculateDeliverableStacking(deliverables: Deliverable[]): StackedDeliverable[] {
+  const scheduled = deliverables.filter((d) => d.startDate && d.endDate);
   const sorted = [...scheduled].sort(
     (a, b) => new Date(a.startDate!).getTime() - new Date(b.startDate!).getTime()
   );
 
-  const stacked: StackedFeature[] = [];
+  const stacked: StackedDeliverable[] = [];
   const rows: { endDate: Date }[] = [];
 
-  for (const feature of sorted) {
-    const start = new Date(feature.startDate!);
+  for (const deliverable of sorted) {
+    const start = new Date(deliverable.startDate!);
 
     let rowIndex = rows.findIndex((row) => row.endDate <= start);
 
     if (rowIndex === -1) {
       rowIndex = rows.length;
-      rows.push({ endDate: new Date(feature.endDate!) });
+      rows.push({ endDate: new Date(deliverable.endDate!) });
     } else {
-      rows[rowIndex].endDate = new Date(feature.endDate!);
+      rows[rowIndex].endDate = new Date(deliverable.endDate!);
     }
 
-    stacked.push({ ...feature, stackIndex: rowIndex });
+    stacked.push({ ...deliverable, stackIndex: rowIndex });
   }
 
   return stacked;
 }
 
 export interface GanttRowData {
-  theme: Theme;
+  goal: Goal;
   initiative: Initiative;
-  scheduledFeatures: StackedFeature[];
-  unscheduledFeatures: Feature[];
+  scheduledDeliverables: StackedDeliverable[];
+  unscheduledDeliverables: Deliverable[];
   maxStackIndex: number;
-  isFirstInitiativeInTheme: boolean;
-  initiativeCountInTheme: number;
+  isFirstInitiativeInGoal: boolean;
+  initiativeCountInGoal: number;
 }
 
 export function buildGanttRows(roadmap: Roadmap): GanttRowData[] {
   const rows: GanttRowData[] = [];
 
-  const sortedThemes = [...roadmap.themes].sort((a, b) => a.order - b.order);
+  const sortedGoals = [...roadmap.goals].sort((a, b) => a.order - b.order);
 
-  for (const theme of sortedThemes) {
-    const themeInitiatives = roadmap.initiatives
-      .filter((i) => i.themeId === theme.id)
+  for (const goal of sortedGoals) {
+    const goalInitiatives = roadmap.initiatives
+      .filter((i) => i.goalId === goal.id)
       .sort((a, b) => a.order - b.order);
 
-    themeInitiatives.forEach((initiative, index) => {
-      const initiativeFeatures = roadmap.features
-        .filter((f) => f.initiativeId === initiative.id)
+    goalInitiatives.forEach((initiative, index) => {
+      const initiativeDeliverables = roadmap.deliverables
+        .filter((d) => d.initiativeId === initiative.id)
         .sort((a, b) => a.order - b.order);
 
-      const scheduled = initiativeFeatures.filter((f) => f.startDate && f.endDate);
-      const unscheduled = initiativeFeatures.filter((f) => !f.startDate || !f.endDate);
+      const scheduled = initiativeDeliverables.filter((d) => d.startDate && d.endDate);
+      const unscheduled = initiativeDeliverables.filter((d) => !d.startDate || !d.endDate);
 
-      const stackedFeatures = calculateFeatureStacking(scheduled);
-      const maxStackIndex = stackedFeatures.reduce(
-        (max, f) => Math.max(max, f.stackIndex),
+      const stackedDeliverables = calculateDeliverableStacking(scheduled);
+      const maxStackIndex = stackedDeliverables.reduce(
+        (max, d) => Math.max(max, d.stackIndex),
         -1
       );
 
       rows.push({
-        theme,
+        goal,
         initiative,
-        scheduledFeatures: stackedFeatures,
-        unscheduledFeatures: unscheduled,
+        scheduledDeliverables: stackedDeliverables,
+        unscheduledDeliverables: unscheduled,
         maxStackIndex,
-        isFirstInitiativeInTheme: index === 0,
-        initiativeCountInTheme: themeInitiatives.length,
+        isFirstInitiativeInGoal: index === 0,
+        initiativeCountInGoal: goalInitiatives.length,
       });
     });
 
-    if (themeInitiatives.length === 0) {
+    if (goalInitiatives.length === 0) {
       rows.push({
-        theme,
+        goal,
         initiative: {
-          id: `empty-${theme.id}`,
-          themeId: theme.id,
+          id: `empty-${goal.id}`,
+          goalId: goal.id,
           name: 'No initiatives',
           idealOutcome: '',
           order: 0,
         },
-        scheduledFeatures: [],
-        unscheduledFeatures: [],
+        scheduledDeliverables: [],
+        unscheduledDeliverables: [],
         maxStackIndex: -1,
-        isFirstInitiativeInTheme: true,
-        initiativeCountInTheme: 0,
+        isFirstInitiativeInGoal: true,
+        initiativeCountInGoal: 0,
       });
     }
   }

@@ -1,16 +1,16 @@
-import type { FeatureStatus } from '../../types';
+import type { DeliverableStatus } from '../../types';
 
 interface BadgeProps {
-  status: FeatureStatus;
+  status: DeliverableStatus;
 }
 
-const statusStyles: Record<FeatureStatus, string> = {
+const statusStyles: Record<DeliverableStatus, string> = {
   shipped: 'bg-gray-900 text-white',
   'in-progress': 'bg-blue-600 text-white',
   planned: 'bg-white text-gray-700 border border-gray-300',
 };
 
-const statusLabels: Record<FeatureStatus, string> = {
+const statusLabels: Record<DeliverableStatus, string> = {
   shipped: 'Shipped',
   'in-progress': 'In Progress',
   planned: 'Planned',

@@ -1,5 +1,5 @@
 export { GanttView } from './GanttView';
 export { GanttHeader } from './GanttHeader';
 export { GanttRow } from './GanttRow';
-export { FeatureBar } from './FeatureBar';
+export { DeliverableBar } from './DeliverableBar';
 export { UnscheduledRow } from './UnscheduledRow';

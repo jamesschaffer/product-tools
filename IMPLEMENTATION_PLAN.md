@@ -54,7 +54,7 @@ This document provides a phased implementation plan for the Product Management T
 
 ## Phase 2: Edit View [COMPLETE]
 
-**Goal:** Full CRUD functionality for themes, initiatives, and features.
+**Goal:** Full CRUD functionality for goals, initiatives, and deliverables.
 
 ### Tasks
 
@@ -68,35 +68,35 @@ This document provides a phased implementation plan for the Product Management T
 - [x] Create `Badge` component (for status display)
 - [x] Create `ExpandCollapseButton` component (integrated into items)
 
-#### 2.2 Theme Management
-- [x] Create `ThemeList` component (integrated into EditView)
-- [x] Create `ThemeItem` component (expandable)
-- [x] Create `ThemeForm` component (name, description, desiredOutcome)
-- [x] Implement add theme
-- [x] Implement edit theme (inline)
-- [x] Implement delete theme (with confirmation, blocked if has initiatives)
-- [x] Implement expand/collapse theme
+#### 2.2 Goal Management
+- [x] Create `GoalList` component (integrated into EditView)
+- [x] Create `GoalItem` component (expandable)
+- [x] Create `GoalForm` component (name, description, desiredOutcome)
+- [x] Implement add goal
+- [x] Implement edit goal (inline)
+- [x] Implement delete goal (with confirmation, blocked if has initiatives)
+- [x] Implement expand/collapse goal
 
 #### 2.3 Initiative Management
 - [x] Create `InitiativeItem` component (expandable)
 - [x] Create `InitiativeForm` component (name, idealOutcome)
-- [x] Implement add initiative to theme
+- [x] Implement add initiative to goal
 - [x] Implement edit initiative (inline)
-- [x] Implement delete initiative (with confirmation, blocked if has features)
+- [x] Implement delete initiative (with confirmation, blocked if has deliverables)
 - [x] Implement expand/collapse initiative
 
-#### 2.4 Feature Management
-- [x] Create `FeatureItem` component
-- [x] Create `FeatureForm` component (name, description, status, startDate, endDate)
-- [x] Implement add feature to initiative
-- [x] Implement edit feature (inline or modal)
-- [x] Implement delete feature (with confirmation)
+#### 2.4 Deliverable Management
+- [x] Create `DeliverableItem` component
+- [x] Create `DeliverableForm` component (name, description, status, startDate, endDate)
+- [x] Implement add deliverable to initiative
+- [x] Implement edit deliverable (inline or modal)
+- [x] Implement delete deliverable (with confirmation)
 - [x] Validate date range (end >= start)
 
 #### 2.5 Edit View Assembly
 - [x] Create `EditView` component
 - [x] Wire up all CRUD operations to context
-- [x] Add "Add Theme" button
+- [x] Add "Add Goal" button
 - [x] Add expand/collapse all functionality
 - [x] Style with Tailwind (clean, functional)
 
@@ -112,13 +112,13 @@ This document provides a phased implementation plan for the Product Management T
 
 #### 3.1 Slide Components
 - [x] Create `SlideView` container component
-- [x] Create `ThemeColumn` component
+- [x] Create `GoalColumn` component
 - [x] Create `InitiativeCard` component
-- [x] Create `FeatureListItem` component (with status badge)
+- [x] Create `DeliverableListItem` component (with status badge)
 - [x] Create `Legend` component
 
 #### 3.2 Data Transformation
-- [x] Create utility to build nested structure (Theme -> Initiative -> Feature) in `utils/transform.ts`
+- [x] Create utility to build nested structure (Goal -> Initiative -> Deliverable) in `utils/transform.ts`
 - [x] Sort by order fields
 
 #### 3.3 Styling
@@ -129,10 +129,10 @@ This document provides a phased implementation plan for the Product Management T
 - [x] Print-friendly styles
 
 #### 3.4 Slide View Assembly
-- [x] Render theme columns
+- [x] Render goal columns
 - [x] Render initiative cards within columns
-- [x] Render features with status badges
-- [x] Display theme desired outcome in column header
+- [x] Render deliverables with status badges
+- [x] Display goal desired outcome in column header
 - [x] Display initiative ideal outcome at card bottom
 - [x] Add legend
 
@@ -156,27 +156,27 @@ This document provides a phased implementation plan for the Product Management T
 - [x] Create `GanttView` container component
 - [x] Create `GanttHeader` (quarters and months)
 - [x] Create `GanttBody` (scrollable area) - integrated into GanttView
-- [x] Create `GanttRow` (theme cell + initiative cell + timeline)
-- [x] Create `FeatureBar` component
+- [x] Create `GanttRow` (goal cell + initiative cell + timeline)
+- [x] Create `DeliverableBar` component
 - [x] Create `UnscheduledRow` component
 
-#### 4.3 Feature Stacking
-- [x] Implement `calculateFeatureStacking` utility in `utils/gantt.ts`
-- [x] Apply stacking to overlapping features
+#### 4.3 Deliverable Stacking
+- [x] Implement `calculateDeliverableStacking` utility in `utils/gantt.ts`
+- [x] Apply stacking to overlapping deliverables
 
 #### 4.4 Drag-to-Resize
-- [x] Add left gripper to FeatureBar
-- [x] Add right gripper to FeatureBar
+- [x] Add left gripper to DeliverableBar
+- [x] Add right gripper to DeliverableBar
 - [x] Implement mouse event handlers
 - [x] Calculate new dates on drag
-- [x] Dispatch UPDATE_FEATURE on drag end
+- [x] Dispatch UPDATE_DELIVERABLE on drag end
 - [x] Add visual feedback during drag
 
 #### 4.5 Gantt View Assembly
 - [x] Build row data from roadmap state via `buildGanttRows` utility
-- [x] Handle themes spanning multiple initiative rows
-- [x] Render scheduled features as bars (constrained to timeline area)
-- [x] Render unscheduled features in dedicated row
+- [x] Handle goals spanning multiple initiative rows
+- [x] Render scheduled deliverables as bars (constrained to timeline area)
+- [x] Render unscheduled deliverables in dedicated row
 - [x] Show initiative outcome below name
 - [x] Implement horizontal scroll for timeline
 
@@ -185,7 +185,7 @@ This document provides a phased implementation plan for the Product Management T
 - [x] Default to next quarter start
 - [x] 12-month view window
 
-**Deliverable:** Gantt view renders timeline, drag-to-resize updates feature dates.
+**Deliverable:** Gantt view renders timeline, drag-to-resize updates deliverable dates.
 
 ---
 
@@ -234,15 +234,15 @@ This document provides a phased implementation plan for the Product Management T
 ### Tasks
 
 #### 6.1 Empty States
-- [x] Edit view: "No themes yet" state with CTA
+- [x] Edit view: "No goals yet" state with CTA
 - [x] Gantt view: "No data" state
 - [x] Slide view: "No data" state
 
 #### 6.2 Validation & Error Handling
 - [x] Required field validation in forms
 - [x] Date validation (end >= start)
-- [x] Prevent delete of theme with initiatives
-- [x] Prevent delete of initiative with features
+- [x] Prevent delete of goal with initiatives
+- [x] Prevent delete of initiative with deliverables
 - [ ] Error boundaries for view components - deferred
 
 #### 6.3 Keyboard & Accessibility

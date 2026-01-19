@@ -36,10 +36,10 @@ Individual product managers who:
 ### Hierarchy
 
 ```
-Theme → Initiative → Feature
+Goal → Initiative → Deliverable
 ```
 
-### Theme
+### Goal
 The highest level of organization. Represents a strategic area or workstream.
 
 | Field | Type | Required | Description |
@@ -51,17 +51,17 @@ The highest level of organization. Represents a strategic area or workstream.
 | order | number | Yes | Display order |
 
 ### Initiative
-A grouping of related work within a theme.
+A grouping of related work within a goal.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | id | string | Yes | Unique identifier |
-| themeId | string | Yes | Parent theme reference |
+| goalId | string | Yes | Parent goal reference |
 | name | string | Yes | Display name |
 | idealOutcome | string | Yes | Success criteria (free text) |
-| order | number | Yes | Display order within theme |
+| order | number | Yes | Display order within goal |
 
-### Feature
+### Deliverable
 A discrete piece of work with timeline and status.
 
 | Field | Type | Required | Description |
@@ -81,7 +81,7 @@ A discrete piece of work with timeline and status.
 |-------|------|---------|-------------|
 | title | string | "Product Roadmap" | Display title for both views |
 | viewStartDate | date | Next quarter start | Gantt view start date |
-| colorTheme | enum | "blue" | Color scheme for feature bars/badges |
+| colorTheme | enum | "blue" | Color scheme for deliverable bars/badges |
 | fontFamily | string | System default | Typography |
 
 ---
@@ -94,37 +94,37 @@ The primary interface for data management. All content creation and editing happ
 
 #### Capabilities
 
-**Theme Management**
-- Create new theme with name and desired outcome
-- Edit existing theme
-- Delete theme (with confirmation; blocked if initiatives exist)
-- Reorder themes via drag-and-drop
+**Goal Management**
+- Create new goal with name and desired outcome
+- Edit existing goal
+- Delete goal (with confirmation; blocked if initiatives exist)
+- Reorder goals via drag-and-drop
 
 **Initiative Management**
-- Create new initiative within a theme
+- Create new initiative within a goal
 - Edit existing initiative
-- Delete initiative (with confirmation; blocked if features exist)
-- Reorder initiatives within theme
-- Move initiative to different theme
+- Delete initiative (with confirmation; blocked if deliverables exist)
+- Reorder initiatives within goal
+- Move initiative to different goal
 
-**Feature Management**
-- Create new feature within an initiative
-- Edit existing feature (name, description, status, dates)
-- Delete feature (with confirmation)
-- Reorder features within initiative
-- Move feature to different initiative
+**Deliverable Management**
+- Create new deliverable within an initiative
+- Edit existing deliverable (name, description, status, dates)
+- Delete deliverable (with confirmation)
+- Reorder deliverables within initiative
+- Move deliverable to different initiative
 
 **Bulk Operations**
-- Expand/collapse all themes
+- Expand/collapse all goals
 - Expand/collapse all initiatives
 
 #### UI Approach
 
 Hierarchical list/tree view:
 ```
-[+ Add Theme]
+[+ Add Goal]
 
-▼ Theme: Platform Modernization
+▼ Goal: Platform Modernization
   Desired outcome: "Reduce technical debt by 50%"
   [Edit] [Delete]
 
@@ -132,11 +132,11 @@ Hierarchical list/tree view:
     Ideal outcome: "All endpoints on v2 API"
     [Edit] [Delete]
 
-    • Feature: Authentication v2    [Shipped]     Jan-Mar 2025  [Edit] [Delete]
-    • Feature: Rate limiting        [In Progress] Mar-May 2025  [Edit] [Delete]
-    • Feature: GraphQL support      [Planned]     Q3 2025       [Edit] [Delete]
+    • Deliverable: Authentication v2    [Shipped]     Jan-Mar 2025  [Edit] [Delete]
+    • Deliverable: Rate limiting        [In Progress] Mar-May 2025  [Edit] [Delete]
+    • Deliverable: GraphQL support      [Planned]     Q3 2025       [Edit] [Delete]
 
-    [+ Add Feature]
+    [+ Add Deliverable]
 
   [+ Add Initiative]
 ```
@@ -150,27 +150,27 @@ Time-based visualization for planning and scheduling discussions.
 #### Display
 
 - **Header**: Quarters and months across the top
-- **Left columns**: Theme (column 1) → Initiative with ideal outcome (column 2)
-- **Chart area**: Feature bars positioned by date
-- **Unscheduled row**: Features without dates appear in a dedicated "Unscheduled" row within their initiative, visually indicating missing date information
+- **Left columns**: Goal (column 1) → Initiative with ideal outcome (column 2)
+- **Chart area**: Deliverable bars positioned by date
+- **Unscheduled row**: Deliverables without dates appear in a dedicated "Unscheduled" row within their initiative, visually indicating missing date information
 
 #### Capabilities
 
 - Scroll/pan timeline horizontally
 - Adjust view start date
-- Drag feature bar edges to resize (updates start/end dates)
-- Hover on feature bar shows tooltip with details
-- Click feature bar opens quick-edit modal (dates and status only)
-- Overlapping features within an initiative stack vertically
+- Drag deliverable bar edges to resize (updates start/end dates)
+- Hover on deliverable bar shows tooltip with details
+- Click deliverable bar opens quick-edit modal (dates and status only)
+- Overlapping deliverables within an initiative stack vertically
 
 #### Visual Design
 
-- Feature bar color indicates status:
+- Deliverable bar color indicates status:
   - Shipped: Solid dark
   - In Progress: Solid medium
   - Planned: Outlined/light
-- Theme rows have subtle background differentiation
-- Initiative rows are grouped under their theme
+- Goal rows have subtle background differentiation
+- Initiative rows are grouped under their goal
 
 ---
 
@@ -180,9 +180,9 @@ Presentation-ready visualization for executive updates and strategy decks.
 
 #### Display
 
-- **Columns**: One per theme (left to right)
+- **Columns**: One per goal (left to right)
 - **Cards**: One per initiative within each column
-- **Line items**: Features with status badges
+- **Line items**: Deliverables with status badges
 
 #### Capabilities
 
@@ -194,7 +194,7 @@ Presentation-ready visualization for executive updates and strategy decks.
 
 - Clean, minimal aesthetic suitable for exec presentations
 - Status badges: Shipped (dark), In Progress (medium), Planned (outlined)
-- Theme desired outcome displayed at column header
+- Goal desired outcome displayed at column header
 - Initiative ideal outcome displayed at bottom of each card
 
 ---
@@ -226,25 +226,25 @@ Presentation-ready visualization for executive updates and strategy decks.
 ### In Scope
 
 1. **Data layer**
-   - Unified data model (Theme → Initiative → Feature)
+   - Unified data model (Goal → Initiative → Deliverable)
    - localStorage persistence
    - Auto-save on changes
 
 2. **Edit View**
-   - Full CRUD for themes, initiatives, features
+   - Full CRUD for goals, initiatives, deliverables
    - Hierarchical tree UI
    - Basic reordering
 
 3. **Gantt View**
    - Timeline rendering with quarters/months
-   - Two-column hierarchy (Theme, Initiative)
-   - Feature bars with drag-to-resize
+   - Two-column hierarchy (Goal, Initiative)
+   - Deliverable bars with drag-to-resize
    - Status-based coloring
 
 4. **Slide View**
-   - Column layout by theme
+   - Column layout by goal
    - Card layout by initiative
-   - Status badges on features
+   - Status badges on deliverables
    - Outcome statements displayed
 
 5. **Navigation**
@@ -293,7 +293,7 @@ Presentation-ready visualization for executive updates and strategy decks.
 ### Phase 4: Enhanced Visualization
 
 - Custom date ranges for Gantt
-- Dependency lines between features
+- Dependency lines between deliverables
 - Milestones
 - Multiple color themes
 - Custom status labels
@@ -310,8 +310,8 @@ Presentation-ready visualization for executive updates and strategy decks.
 
 ### MVP Success
 
-1. User can enter a complete roadmap (themes, initiatives, features) in Edit view
-2. Gantt view accurately renders timeline based on feature dates
+1. User can enter a complete roadmap (goals, initiatives, deliverables) in Edit view
+2. Gantt view accurately renders timeline based on deliverable dates
 3. Slide view accurately renders status-based presentation
 4. Both views stay in sync when data changes
 5. Data persists across browser sessions
@@ -328,13 +328,13 @@ Presentation-ready visualization for executive updates and strategy decks.
 
 ## Design Decisions
 
-1. **Feature dates**: Optional. Features without dates appear in both views:
+1. **Deliverable dates**: Optional. Deliverables without dates appear in both views:
    - **Slide view**: Displayed normally with status badge
    - **Gantt view**: Displayed in an "Unscheduled" row within their initiative (visual indicator that dates are missing)
 
-2. **Slide view overflow**: Horizontal scroll when themes exceed viewport width. Layout can be revisited later if needed—CSS adjustments are straightforward.
+2. **Slide view overflow**: Horizontal scroll when goals exceed viewport width. Layout can be revisited later if needed—CSS adjustments are straightforward.
 
-3. **Theme desired outcome**: Available in the data model. Display in Gantt view TBD (will be accessible via API for future use).
+3. **Goal desired outcome**: Available in the data model. Display in Gantt view TBD (will be accessible via API for future use).
 
 ---
 
@@ -347,7 +347,7 @@ Presentation-ready visualization for executive updates and strategy decks.
 │  [Logo/Title]                    Edit | Gantt | Slide        [⚙] [Export]  │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                          │ Q1 2025      │ Q2 2025      │ Q3 2025           │
-│  Theme      │ Initiative │ Jan Feb Mar  │ Apr May Jun  │ Jul Aug Sep       │
+│  Goal       │ Initiative │ Jan Feb Mar  │ Apr May Jun  │ Jul Aug Sep       │
 ├─────────────┼────────────┼──────────────┼──────────────┼───────────────────┤
 │  Platform   │ API        │ [████████]   │ [████████]   │                   │
 │             │ Redesign   │              │    [░░░░░░░░░░░░░░]              │

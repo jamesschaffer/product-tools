@@ -16,11 +16,11 @@ The project started with two separate standalone tools:
 These tools had different data structures, making it impossible to maintain a single source of truth.
 
 **Decision:**
-Create a unified hierarchical data model: **Theme → Initiative → Feature**
+Create a unified hierarchical data model: **Goal → Initiative → Deliverable**
 
-- **Theme**: High-level strategic category (was: Initiative in Gantt, Stage in vision)
+- **Goal**: High-level strategic category (was: Initiative in Gantt, Stage in vision)
 - **Initiative**: Grouping of related work (was: not present in Gantt, Cluster in vision)
-- **Feature**: Individual work item (was: Epic in Gantt, Capability in vision)
+- **Deliverable**: Individual work item (was: Epic in Gantt, Capability in vision)
 
 **Consequences:**
 - Single data model powers both views
@@ -35,25 +35,25 @@ Create a unified hierarchical data model: **Theme → Initiative → Feature**
 **Date:** 2025-01-16
 
 **Context:**
-Multiple naming conventions were considered: Initiative/Epic, Stage/Cluster/Capability, Theme/Cluster/Effort.
+Multiple naming conventions were considered: Initiative/Epic, Stage/Cluster/Capability, Goal/Cluster/Effort.
 
 **Decision:**
-Use **Theme / Initiative / Feature** terminology.
+Use **Goal / Initiative / Deliverable** terminology.
 
 | Term | Definition |
 |------|------------|
-| Theme | Strategic area with a desired outcome |
-| Initiative | Grouping of features with an ideal outcome |
-| Feature | Discrete work item with status and dates |
+| Goal | Strategic area with a desired outcome |
+| Initiative | Grouping of deliverables with an ideal outcome |
+| Deliverable | Discrete work item with status and dates |
 
 **Rationale:**
-- "Theme" conveys strategic level without implying time
+- "Goal" conveys strategic level without implying time
 - "Initiative" is familiar PM terminology
-- "Feature" is universally understood
+- "Deliverable" is universally understood
 
 **Consequences:**
 - Consistent vocabulary across all documentation and code
-- Clear hierarchy: Theme contains Initiatives, Initiative contains Features
+- Clear hierarchy: Goal contains Initiatives, Initiative contains Deliverables
 
 ---
 
@@ -84,19 +84,19 @@ Implement three distinct views:
 
 ---
 
-## ADR-004: Feature Dates Optional
+## ADR-004: Deliverable Dates Optional
 
 **Date:** 2025-01-16
 
 **Context:**
-Some features may not have scheduled dates yet (early planning stage).
+Some deliverables may not have scheduled dates yet (early planning stage).
 
 **Decision:**
-Feature `startDate` and `endDate` are optional fields.
+Deliverable `startDate` and `endDate` are optional fields.
 
 **Behavior by view:**
-- **Slide View**: Features without dates display normally with status badge
-- **Gantt View**: Features without dates appear in a dedicated "Unscheduled" row within their initiative
+- **Slide View**: Deliverables without dates display normally with status badge
+- **Gantt View**: Deliverables without dates appear in a dedicated "Unscheduled" row within their initiative
 
 **Rationale:**
 - Allows capturing planned work before scheduling
@@ -104,9 +104,9 @@ Feature `startDate` and `endDate` are optional fields.
 - Doesn't block workflow when dates are unknown
 
 **Consequences:**
-- Gantt view must handle unscheduled features
+- Gantt view must handle unscheduled deliverables
 - Data model allows null dates
-- UI should make it clear when features lack dates
+- UI should make it clear when deliverables lack dates
 
 ---
 
@@ -118,11 +118,11 @@ Feature `startDate` and `endDate` are optional fields.
 Outcomes provide context for why work matters.
 
 **Decision:**
-- **Theme**: `desiredOutcome` required (free text)
+- **Goal**: `desiredOutcome` required (free text)
 - **Initiative**: `idealOutcome` required (free text)
 
 **Display:**
-- Slide View: Theme outcome in column header, Initiative outcome at bottom of card
+- Slide View: Goal outcome in column header, Initiative outcome at bottom of card
 - Gantt View: Initiative outcome as small text below initiative name
 
 **Rationale:**
@@ -149,7 +149,7 @@ Remove focus indicators from the unified model. Can be added later if needed.
 **Rationale:**
 - Adds complexity without clear value for MVP
 - Focus allocation changes frequently
-- Can be added as optional Theme-level metadata later
+- Can be added as optional Goal-level metadata later
 
 **Consequences:**
 - Simpler data model
@@ -219,12 +219,12 @@ Use **React Context + useReducer** (no external library).
 **Date:** 2025-01-16
 
 **Context:**
-Slide view displays themes as horizontal columns. With many themes (8+), this exceeds viewport width.
+Slide view displays goals as horizontal columns. With many goals (8+), this exceeds viewport width.
 
 **Options considered:**
 1. Horizontal scroll
 2. Wrap to rows
-3. Limit theme count
+3. Limit goal count
 4. Zoom/scale
 5. Alternative vertical layout
 
@@ -234,7 +234,7 @@ Use **horizontal scroll** with no artificial limits.
 **Rationale:**
 - Doesn't restrict users
 - CSS is easy to adjust later if needed
-- Presentation use case works best with 5-6 themes anyway
+- Presentation use case works best with 5-6 goals anyway
 - Scroll is acceptable for editing/previewing; export captures full width
 
 **Consequences:**
@@ -249,13 +249,13 @@ Use **horizontal scroll** with no artificial limits.
 **Date:** 2025-01-16
 
 **Context:**
-Original Gantt had single-level swimlanes (Initiative only). Unified model adds Theme as parent level.
+Original Gantt had single-level swimlanes (Initiative only). Unified model adds Goal as parent level.
 
 **Decision:**
-Gantt view has two-column left panel: **Theme | Initiative**
+Gantt view has two-column left panel: **Goal | Initiative**
 
 ```
-Theme          | Initiative           | Timeline...
+Goal           | Initiative           | Timeline...
 ───────────────┼──────────────────────┼─────────────
 Platform       | API Redesign         | [███] [░░░]
                │ → outcome text       │
@@ -268,14 +268,14 @@ Growth         | Onboarding           | [░░░░░░░░░]
 
 **Rationale:**
 - Matches slide view hierarchy
-- Theme provides strategic context
+- Goal provides strategic context
 - Initiative + outcome visible in row
-- Features render in timeline area
+- Deliverables render in timeline area
 
 **Consequences:**
 - More complex row rendering
-- Theme cell may span multiple initiative rows
-- Clear visual grouping of initiatives under themes
+- Goal cell may span multiple initiative rows
+- Clear visual grouping of initiatives under goals
 
 ---
 
@@ -284,20 +284,20 @@ Growth         | Onboarding           | [░░░░░░░░░]
 **Date:** 2025-01-17
 
 **Context:**
-The original Gantt implementation had feature bars that could extend into the theme/initiative label columns when features started before the view window or when dragging.
+The original Gantt implementation had deliverable bars that could extend into the goal/initiative label columns when deliverables started before the view window or when dragging.
 
 **Decision:**
-Use a three-column flex layout with fixed-width columns for Theme (160px) and Initiative (192px), with the timeline area using `flex-1` to fill remaining space. Feature bars are positioned with `overflow-hidden` on the timeline container.
+Use a three-column flex layout with fixed-width columns for Goal (160px) and Initiative (192px), with the timeline area using `flex-1` to fill remaining space. Deliverable bars are positioned with `overflow-hidden` on the timeline container.
 
 **Rationale:**
 - Clean visual separation between labels and timeline
-- Prevents UI confusion when features extend beyond view boundaries
+- Prevents UI confusion when deliverables extend beyond view boundaries
 - Consistent column widths make the layout predictable
 
 **Consequences:**
-- Feature bars are clipped at timeline boundaries
+- Deliverable bars are clipped at timeline boundaries
 - Label columns maintain fixed width regardless of content
-- Unscheduled features row mirrors the same column structure
+- Unscheduled deliverables row mirrors the same column structure
 
 ---
 

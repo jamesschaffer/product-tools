@@ -88,7 +88,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     reader.onload = (event) => {
       try {
         const imported = JSON.parse(event.target?.result as string);
-        if (imported.themes && imported.initiatives && imported.features) {
+        if (imported.goals && imported.initiatives && imported.deliverables) {
           dispatch({ type: 'IMPORT_ROADMAP', payload: imported });
           onClose();
         } else {
@@ -173,7 +173,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         onClose={() => setShowResetConfirm(false)}
         onConfirm={handleReset}
         title="Reset All Data"
-        message="This will delete all themes, initiatives, and features. This action cannot be undone."
+        message="This will delete all goals, initiatives, and deliverables. This action cannot be undone."
         confirmLabel="Reset"
       />
     </>

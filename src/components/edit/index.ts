@@ -1,7 +1,7 @@
 export { EditView } from './EditView';
-export { ThemeForm } from './ThemeForm';
-export { ThemeItem } from './ThemeItem';
+export { GoalForm } from './GoalForm';
+export { GoalItem } from './GoalItem';
 export { InitiativeForm } from './InitiativeForm';
 export { InitiativeItem } from './InitiativeItem';
-export { FeatureForm } from './FeatureForm';
-export { FeatureItem } from './FeatureItem';
+export { DeliverableForm } from './DeliverableForm';
+export { DeliverableItem } from './DeliverableItem';

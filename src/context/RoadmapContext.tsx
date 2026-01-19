@@ -7,9 +7,9 @@ import {
 } from 'react';
 import type {
   Roadmap,
-  Theme,
+  Goal,
   Initiative,
-  Feature,
+  Deliverable,
   RoadmapSettings,
 } from '../types';
 import { generateId, saveRoadmap, loadRoadmap, getNextQuarterStart, formatDateISO } from '../utils';
@@ -21,20 +21,20 @@ interface RoadmapState {
 }
 
 type RoadmapAction =
-  | { type: 'ADD_THEME'; payload: Omit<Theme, 'id' | 'order'> }
-  | { type: 'UPDATE_THEME'; payload: Theme }
-  | { type: 'DELETE_THEME'; payload: string }
-  | { type: 'REORDER_THEMES'; payload: string[] }
+  | { type: 'ADD_GOAL'; payload: Omit<Goal, 'id' | 'order'> }
+  | { type: 'UPDATE_GOAL'; payload: Goal }
+  | { type: 'DELETE_GOAL'; payload: string }
+  | { type: 'REORDER_GOALS'; payload: string[] }
   | { type: 'ADD_INITIATIVE'; payload: Omit<Initiative, 'id' | 'order'> }
   | { type: 'UPDATE_INITIATIVE'; payload: Initiative }
   | { type: 'DELETE_INITIATIVE'; payload: string }
-  | { type: 'MOVE_INITIATIVE'; payload: { id: string; newThemeId: string } }
-  | { type: 'REORDER_INITIATIVES'; payload: { themeId: string; initiativeIds: string[] } }
-  | { type: 'ADD_FEATURE'; payload: Omit<Feature, 'id' | 'order'> }
-  | { type: 'UPDATE_FEATURE'; payload: Feature }
-  | { type: 'DELETE_FEATURE'; payload: string }
-  | { type: 'MOVE_FEATURE'; payload: { id: string; newInitiativeId: string } }
-  | { type: 'REORDER_FEATURES'; payload: { initiativeId: string; featureIds: string[] } }
+  | { type: 'MOVE_INITIATIVE'; payload: { id: string; newGoalId: string } }
+  | { type: 'REORDER_INITIATIVES'; payload: { goalId: string; initiativeIds: string[] } }
+  | { type: 'ADD_DELIVERABLE'; payload: Omit<Deliverable, 'id' | 'order'> }
+  | { type: 'UPDATE_DELIVERABLE'; payload: Deliverable }
+  | { type: 'DELETE_DELIVERABLE'; payload: string }
+  | { type: 'MOVE_DELIVERABLE'; payload: { id: string; newInitiativeId: string } }
+  | { type: 'REORDER_DELIVERABLES'; payload: { initiativeId: string; deliverableIds: string[] } }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<RoadmapSettings> }
   | { type: 'UPDATE_TITLE'; payload: string }
   | { type: 'LOAD_ROADMAP'; payload: Roadmap }
@@ -46,9 +46,9 @@ function createInitialRoadmap(): Roadmap {
   return {
     id: generateId(),
     title: 'Product Roadmap',
-    themes: [],
+    goals: [],
     initiatives: [],
-    features: [],
+    deliverables: [],
     settings: {
       viewStartDate: formatDateISO(getNextQuarterStart(new Date())),
       colorTheme: 'blue',
@@ -70,47 +70,47 @@ function roadmapReducer(state: RoadmapState, action: RoadmapAction): RoadmapStat
   });
 
   switch (action.type) {
-    case 'ADD_THEME': {
-      const newTheme: Theme = {
+    case 'ADD_GOAL': {
+      const newGoal: Goal = {
         ...action.payload,
         id: generateId(),
-        order: state.roadmap.themes.length,
+        order: state.roadmap.goals.length,
       };
       return updateRoadmap({
-        themes: [...state.roadmap.themes, newTheme],
+        goals: [...state.roadmap.goals, newGoal],
       });
     }
 
-    case 'UPDATE_THEME': {
+    case 'UPDATE_GOAL': {
       return updateRoadmap({
-        themes: state.roadmap.themes.map((t) =>
-          t.id === action.payload.id ? action.payload : t
+        goals: state.roadmap.goals.map((g) =>
+          g.id === action.payload.id ? action.payload : g
         ),
       });
     }
 
-    case 'DELETE_THEME': {
+    case 'DELETE_GOAL': {
       return updateRoadmap({
-        themes: state.roadmap.themes.filter((t) => t.id !== action.payload),
+        goals: state.roadmap.goals.filter((g) => g.id !== action.payload),
       });
     }
 
-    case 'REORDER_THEMES': {
+    case 'REORDER_GOALS': {
       const reordered = action.payload.map((id, index) => {
-        const theme = state.roadmap.themes.find((t) => t.id === id);
-        return theme ? { ...theme, order: index } : null;
-      }).filter((t): t is Theme => t !== null);
-      return updateRoadmap({ themes: reordered });
+        const goal = state.roadmap.goals.find((g) => g.id === id);
+        return goal ? { ...goal, order: index } : null;
+      }).filter((g): g is Goal => g !== null);
+      return updateRoadmap({ goals: reordered });
     }
 
     case 'ADD_INITIATIVE': {
-      const initiativesInTheme = state.roadmap.initiatives.filter(
-        (i) => i.themeId === action.payload.themeId
+      const initiativesInGoal = state.roadmap.initiatives.filter(
+        (i) => i.goalId === action.payload.goalId
       );
       const newInitiative: Initiative = {
         ...action.payload,
         id: generateId(),
-        order: initiativesInTheme.length,
+        order: initiativesInGoal.length,
       };
       return updateRoadmap({
         initiatives: [...state.roadmap.initiatives, newInitiative],
@@ -135,16 +135,16 @@ function roadmapReducer(state: RoadmapState, action: RoadmapAction): RoadmapStat
       return updateRoadmap({
         initiatives: state.roadmap.initiatives.map((i) =>
           i.id === action.payload.id
-            ? { ...i, themeId: action.payload.newThemeId }
+            ? { ...i, goalId: action.payload.newGoalId }
             : i
         ),
       });
     }
 
     case 'REORDER_INITIATIVES': {
-      const { themeId, initiativeIds } = action.payload;
+      const { goalId, initiativeIds } = action.payload;
       const otherInitiatives = state.roadmap.initiatives.filter(
-        (i) => i.themeId !== themeId
+        (i) => i.goalId !== goalId
       );
       const reordered = initiativeIds.map((id, index) => {
         const initiative = state.roadmap.initiatives.find((i) => i.id === id);
@@ -155,55 +155,55 @@ function roadmapReducer(state: RoadmapState, action: RoadmapAction): RoadmapStat
       });
     }
 
-    case 'ADD_FEATURE': {
-      const featuresInInitiative = state.roadmap.features.filter(
-        (f) => f.initiativeId === action.payload.initiativeId
+    case 'ADD_DELIVERABLE': {
+      const deliverablesInInitiative = state.roadmap.deliverables.filter(
+        (d) => d.initiativeId === action.payload.initiativeId
       );
-      const newFeature: Feature = {
+      const newDeliverable: Deliverable = {
         ...action.payload,
         id: generateId(),
-        order: featuresInInitiative.length,
+        order: deliverablesInInitiative.length,
       };
       return updateRoadmap({
-        features: [...state.roadmap.features, newFeature],
+        deliverables: [...state.roadmap.deliverables, newDeliverable],
       });
     }
 
-    case 'UPDATE_FEATURE': {
+    case 'UPDATE_DELIVERABLE': {
       return updateRoadmap({
-        features: state.roadmap.features.map((f) =>
-          f.id === action.payload.id ? action.payload : f
+        deliverables: state.roadmap.deliverables.map((d) =>
+          d.id === action.payload.id ? action.payload : d
         ),
       });
     }
 
-    case 'DELETE_FEATURE': {
+    case 'DELETE_DELIVERABLE': {
       return updateRoadmap({
-        features: state.roadmap.features.filter((f) => f.id !== action.payload),
+        deliverables: state.roadmap.deliverables.filter((d) => d.id !== action.payload),
       });
     }
 
-    case 'MOVE_FEATURE': {
+    case 'MOVE_DELIVERABLE': {
       return updateRoadmap({
-        features: state.roadmap.features.map((f) =>
-          f.id === action.payload.id
-            ? { ...f, initiativeId: action.payload.newInitiativeId }
-            : f
+        deliverables: state.roadmap.deliverables.map((d) =>
+          d.id === action.payload.id
+            ? { ...d, initiativeId: action.payload.newInitiativeId }
+            : d
         ),
       });
     }
 
-    case 'REORDER_FEATURES': {
-      const { initiativeId, featureIds } = action.payload;
-      const otherFeatures = state.roadmap.features.filter(
-        (f) => f.initiativeId !== initiativeId
+    case 'REORDER_DELIVERABLES': {
+      const { initiativeId, deliverableIds } = action.payload;
+      const otherDeliverables = state.roadmap.deliverables.filter(
+        (d) => d.initiativeId !== initiativeId
       );
-      const reordered = featureIds.map((id, index) => {
-        const feature = state.roadmap.features.find((f) => f.id === id);
-        return feature ? { ...feature, order: index } : null;
-      }).filter((f): f is Feature => f !== null);
+      const reordered = deliverableIds.map((id, index) => {
+        const deliverable = state.roadmap.deliverables.find((d) => d.id === id);
+        return deliverable ? { ...deliverable, order: index } : null;
+      }).filter((d): d is Deliverable => d !== null);
       return updateRoadmap({
-        features: [...otherFeatures, ...reordered],
+        deliverables: [...otherDeliverables, ...reordered],
       });
     }
 

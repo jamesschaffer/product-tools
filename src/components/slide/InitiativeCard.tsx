@@ -1,5 +1,5 @@
 import type { InitiativeWithChildren } from '../../types';
-import { FeatureListItem } from './FeatureListItem';
+import { DeliverableListItem } from './DeliverableListItem';
 
 interface InitiativeCardProps {
   initiative: InitiativeWithChildren;
@@ -12,11 +12,11 @@ export function InitiativeCard({ initiative }: InitiativeCardProps) {
         {initiative.name}
       </h4>
       <div className="space-y-1 mb-3">
-        {initiative.features.map((feature) => (
-          <FeatureListItem key={feature.id} feature={feature} />
+        {initiative.deliverables.map((deliverable) => (
+          <DeliverableListItem key={deliverable.id} deliverable={deliverable} />
         ))}
-        {initiative.features.length === 0 && (
-          <p className="text-xs text-slate-400 italic">No features yet</p>
+        {initiative.deliverables.length === 0 && (
+          <p className="text-xs text-slate-400 italic">No deliverables yet</p>
         )}
       </div>
       <div className="text-[10px] text-teal-600 font-medium pt-2 border-t border-dashed border-slate-200 leading-snug">

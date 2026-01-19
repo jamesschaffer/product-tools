@@ -1,5 +1,5 @@
 export { SlideView } from './SlideView';
-export { ThemeColumn } from './ThemeColumn';
+export { GoalColumn } from './GoalColumn';
 export { InitiativeCard } from './InitiativeCard';
-export { FeatureListItem } from './FeatureListItem';
+export { DeliverableListItem } from './DeliverableListItem';
 export { Legend } from './Legend';

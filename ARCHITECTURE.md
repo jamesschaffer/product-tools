@@ -32,26 +32,26 @@ product-tools/
 │   │   │   └── index.ts
 │   │   ├── edit/                  # Edit view components
 │   │   │   ├── EditView.tsx
-│   │   │   ├── ThemeList.tsx
-│   │   │   ├── ThemeItem.tsx
+│   │   │   ├── GoalList.tsx
+│   │   │   ├── GoalItem.tsx
 │   │   │   ├── InitiativeItem.tsx
-│   │   │   ├── FeatureItem.tsx
-│   │   │   ├── ThemeForm.tsx
+│   │   │   ├── DeliverableItem.tsx
+│   │   │   ├── GoalForm.tsx
 │   │   │   ├── InitiativeForm.tsx
-│   │   │   ├── FeatureForm.tsx
+│   │   │   ├── DeliverableForm.tsx
 │   │   │   └── index.ts
 │   │   ├── gantt/                 # Gantt view components
 │   │   │   ├── GanttView.tsx
 │   │   │   ├── GanttHeader.tsx
 │   │   │   ├── GanttRow.tsx
-│   │   │   ├── FeatureBar.tsx
+│   │   │   ├── DeliverableBar.tsx
 │   │   │   ├── UnscheduledRow.tsx
 │   │   │   └── index.ts
 │   │   ├── slide/                 # Slide view components
 │   │   │   ├── SlideView.tsx
-│   │   │   ├── ThemeColumn.tsx
+│   │   │   ├── GoalColumn.tsx
 │   │   │   ├── InitiativeCard.tsx
-│   │   │   ├── FeatureListItem.tsx
+│   │   │   ├── DeliverableListItem.tsx
 │   │   │   └── index.ts
 │   │   └── settings/              # Settings components
 │   │       ├── SettingsModal.tsx
@@ -104,14 +104,14 @@ product-tools/
 ```typescript
 // src/types/roadmap.ts
 
-export type FeatureStatus = 'shipped' | 'in-progress' | 'planned';
+export type DeliverableStatus = 'shipped' | 'in-progress' | 'planned';
 
-export interface Feature {
+export interface Deliverable {
   id: string;
   initiativeId: string;
   name: string;
   description?: string;
-  status: FeatureStatus;
+  status: DeliverableStatus;
   startDate?: string;      // ISO date string (YYYY-MM-DD)
   endDate?: string;        // ISO date string (YYYY-MM-DD)
   order: number;
@@ -119,13 +119,13 @@ export interface Feature {
 
 export interface Initiative {
   id: string;
-  themeId: string;
+  goalId: string;
   name: string;
   idealOutcome: string;
   order: number;
 }
 
-export interface Theme {
+export interface Goal {
   id: string;
   name: string;
   description?: string;
@@ -136,9 +136,9 @@ export interface Theme {
 export interface Roadmap {
   id: string;
   title: string;
-  themes: Theme[];
+  goals: Goal[];
   initiatives: Initiative[];
-  features: Feature[];
+  deliverables: Deliverable[];
   settings: RoadmapSettings;
   createdAt: string;
   updatedAt: string;
@@ -164,21 +164,21 @@ export type ColorTheme = 'blue' | 'green' | 'orange' | 'purple' | 'red' | 'teal'
                             │ contains
                             ▼
 ┌─────────────────────────────────────────────────────────┐
-│                         Theme                           │
+│                          Goal                           │
 │  - id, name, description, desiredOutcome, order         │
 └─────────────────────────────────────────────────────────┘
                             │
-                            │ themeId (1:many)
+                            │ goalId (1:many)
                             ▼
 ┌─────────────────────────────────────────────────────────┐
 │                      Initiative                         │
-│  - id, themeId, name, idealOutcome, order               │
+│  - id, goalId, name, idealOutcome, order                │
 └─────────────────────────────────────────────────────────┘
                             │
                             │ initiativeId (1:many)
                             ▼
 ┌─────────────────────────────────────────────────────────┐
-│                        Feature                          │
+│                      Deliverable                        │
 │  - id, initiativeId, name, description,                 │
 │    status, startDate, endDate, order                    │
 └─────────────────────────────────────────────────────────┘
@@ -190,20 +190,20 @@ For views, derive nested structures from flat arrays:
 
 ```typescript
 // Derived type for Edit/Slide views
-interface ThemeWithChildren extends Theme {
+interface GoalWithChildren extends Goal {
   initiatives: InitiativeWithChildren[];
 }
 
 interface InitiativeWithChildren extends Initiative {
-  features: Feature[];
+  deliverables: Deliverable[];
 }
 
 // Derived type for Gantt view
 interface GanttRow {
-  theme: Theme;
+  goal: Goal;
   initiative: Initiative;
-  scheduledFeatures: Feature[];    // Features with dates
-  unscheduledFeatures: Feature[];  // Features without dates
+  scheduledDeliverables: Deliverable[];    // Deliverables with dates
+  unscheduledDeliverables: Deliverable[];  // Deliverables without dates
 }
 ```
 
@@ -221,29 +221,29 @@ App
 │
 ├── Routes
 │   ├── /edit → EditView
-│   │   └── ThemeList
-│   │       └── ThemeItem (expandable)
-│   │           ├── ThemeForm (inline edit)
+│   │   └── GoalList
+│   │       └── GoalItem (expandable)
+│   │           ├── GoalForm (inline edit)
 │   │           └── InitiativeItem (expandable)
 │   │               ├── InitiativeForm (inline edit)
-│   │               └── FeatureItem
-│   │                   └── FeatureForm (inline edit)
+│   │               └── DeliverableItem
+│   │                   └── DeliverableForm (inline edit)
 │   │
 │   ├── /gantt → GanttView
 │   │   ├── GanttHeader (quarters/months)
 │   │   └── GanttBody
 │   │       └── GanttRow (per initiative)
-│   │           ├── ThemeCell
+│   │           ├── GoalCell
 │   │           ├── InitiativeCell
-│   │           ├── FeatureBar[] (draggable edges)
+│   │           ├── DeliverableBar[] (draggable edges)
 │   │           └── UnscheduledRow (if applicable)
 │   │
 │   └── /slide → SlideView
 │       ├── SlideHeader (title)
-│       ├── ThemeColumns
-│       │   └── ThemeColumn
+│       ├── GoalColumns
+│       │   └── GoalColumn
 │       │       └── InitiativeCard
-│       │           ├── FeatureListItem[]
+│       │           ├── DeliverableListItem[]
 │       │           └── OutcomeStatement
 │       └── Legend
 │
@@ -264,23 +264,23 @@ interface RoadmapState {
 }
 
 type RoadmapAction =
-  // Theme actions
-  | { type: 'ADD_THEME'; payload: Omit<Theme, 'id' | 'order'> }
-  | { type: 'UPDATE_THEME'; payload: Theme }
-  | { type: 'DELETE_THEME'; payload: string }
-  | { type: 'REORDER_THEMES'; payload: string[] }
+  // Goal actions
+  | { type: 'ADD_GOAL'; payload: Omit<Goal, 'id' | 'order'> }
+  | { type: 'UPDATE_GOAL'; payload: Goal }
+  | { type: 'DELETE_GOAL'; payload: string }
+  | { type: 'REORDER_GOALS'; payload: string[] }
   // Initiative actions
   | { type: 'ADD_INITIATIVE'; payload: Omit<Initiative, 'id' | 'order'> }
   | { type: 'UPDATE_INITIATIVE'; payload: Initiative }
   | { type: 'DELETE_INITIATIVE'; payload: string }
-  | { type: 'MOVE_INITIATIVE'; payload: { id: string; newThemeId: string } }
-  | { type: 'REORDER_INITIATIVES'; payload: { themeId: string; initiativeIds: string[] } }
-  // Feature actions
-  | { type: 'ADD_FEATURE'; payload: Omit<Feature, 'id' | 'order'> }
-  | { type: 'UPDATE_FEATURE'; payload: Feature }
-  | { type: 'DELETE_FEATURE'; payload: string }
-  | { type: 'MOVE_FEATURE'; payload: { id: string; newInitiativeId: string } }
-  | { type: 'REORDER_FEATURES'; payload: { initiativeId: string; featureIds: string[] } }
+  | { type: 'MOVE_INITIATIVE'; payload: { id: string; newGoalId: string } }
+  | { type: 'REORDER_INITIATIVES'; payload: { goalId: string; initiativeIds: string[] } }
+  // Deliverable actions
+  | { type: 'ADD_DELIVERABLE'; payload: Omit<Deliverable, 'id' | 'order'> }
+  | { type: 'UPDATE_DELIVERABLE'; payload: Deliverable }
+  | { type: 'DELETE_DELIVERABLE'; payload: string }
+  | { type: 'MOVE_DELIVERABLE'; payload: { id: string; newInitiativeId: string } }
+  | { type: 'REORDER_DELIVERABLES'; payload: { initiativeId: string; deliverableIds: string[] } }
   // Settings actions
   | { type: 'UPDATE_SETTINGS'; payload: Partial<RoadmapSettings> }
   | { type: 'UPDATE_TITLE'; payload: string }
@@ -411,13 +411,13 @@ export function percentToDate(
 }
 ```
 
-### Feature Bar Drag-to-Resize
+### Deliverable Bar Drag-to-Resize
 
 ```typescript
-// src/components/gantt/FeatureBar.tsx
+// src/components/gantt/DeliverableBar.tsx
 
-interface FeatureBarProps {
-  feature: Feature;
+interface DeliverableBarProps {
+  deliverable: Deliverable;
   viewStart: Date;
   viewMonths: number;
   onUpdateDates: (startDate: string, endDate: string) => void;
@@ -430,38 +430,38 @@ interface FeatureBarProps {
 // - CSS cursor: ew-resize on grippers
 ```
 
-### Stacking Overlapping Features
+### Stacking Overlapping Deliverables
 
 ```typescript
 // src/utils/gantt.ts
 
-interface StackedFeature extends Feature {
+interface StackedDeliverable extends Deliverable {
   stackIndex: number;
 }
 
-export function calculateFeatureStacking(features: Feature[]): StackedFeature[] {
+export function calculateDeliverableStacking(deliverables: Deliverable[]): StackedDeliverable[] {
   // Sort by start date
-  const sorted = [...features].sort((a, b) =>
+  const sorted = [...deliverables].sort((a, b) =>
     new Date(a.startDate!).getTime() - new Date(b.startDate!).getTime()
   );
 
-  const stacked: StackedFeature[] = [];
+  const stacked: StackedDeliverable[] = [];
   const rows: { endDate: Date }[] = [];
 
-  for (const feature of sorted) {
-    const start = new Date(feature.startDate!);
+  for (const deliverable of sorted) {
+    const start = new Date(deliverable.startDate!);
 
-    // Find first row where feature fits
+    // Find first row where deliverable fits
     let rowIndex = rows.findIndex(row => row.endDate <= start);
 
     if (rowIndex === -1) {
       rowIndex = rows.length;
-      rows.push({ endDate: new Date(feature.endDate!) });
+      rows.push({ endDate: new Date(deliverable.endDate!) });
     } else {
-      rows[rowIndex].endDate = new Date(feature.endDate!);
+      rows[rowIndex].endDate = new Date(deliverable.endDate!);
     }
 
-    stacked.push({ ...feature, stackIndex: rowIndex });
+    stacked.push({ ...deliverable, stackIndex: rowIndex });
   }
 
   return stacked;
@@ -539,8 +539,8 @@ CREATE TABLE roadmaps (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Themes
-CREATE TABLE themes (
+-- Goals
+CREATE TABLE goals (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   roadmap_id UUID REFERENCES roadmaps(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
@@ -554,7 +554,7 @@ CREATE TABLE themes (
 -- Initiatives
 CREATE TABLE initiatives (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  theme_id UUID REFERENCES themes(id) ON DELETE CASCADE,
+  goal_id UUID REFERENCES goals(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   ideal_outcome TEXT NOT NULL,
   "order" INTEGER NOT NULL DEFAULT 0,
@@ -562,8 +562,8 @@ CREATE TABLE initiatives (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Features
-CREATE TABLE features (
+-- Deliverables
+CREATE TABLE deliverables (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   initiative_id UUID REFERENCES initiatives(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
@@ -578,33 +578,33 @@ CREATE TABLE features (
 
 -- Row Level Security
 ALTER TABLE roadmaps ENABLE ROW LEVEL SECURITY;
-ALTER TABLE themes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE goals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE initiatives ENABLE ROW LEVEL SECURITY;
-ALTER TABLE features ENABLE ROW LEVEL SECURITY;
+ALTER TABLE deliverables ENABLE ROW LEVEL SECURITY;
 
 -- Policies (user can only access their own data)
 CREATE POLICY "Users can manage their own roadmaps"
   ON roadmaps FOR ALL
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can manage themes in their roadmaps"
-  ON themes FOR ALL
+CREATE POLICY "Users can manage goals in their roadmaps"
+  ON goals FOR ALL
   USING (roadmap_id IN (SELECT id FROM roadmaps WHERE user_id = auth.uid()));
 
-CREATE POLICY "Users can manage initiatives in their themes"
+CREATE POLICY "Users can manage initiatives in their goals"
   ON initiatives FOR ALL
-  USING (theme_id IN (
-    SELECT t.id FROM themes t
-    JOIN roadmaps r ON t.roadmap_id = r.id
+  USING (goal_id IN (
+    SELECT g.id FROM goals g
+    JOIN roadmaps r ON g.roadmap_id = r.id
     WHERE r.user_id = auth.uid()
   ));
 
-CREATE POLICY "Users can manage features in their initiatives"
-  ON features FOR ALL
+CREATE POLICY "Users can manage deliverables in their initiatives"
+  ON deliverables FOR ALL
   USING (initiative_id IN (
     SELECT i.id FROM initiatives i
-    JOIN themes t ON i.theme_id = t.id
-    JOIN roadmaps r ON t.roadmap_id = r.id
+    JOIN goals g ON i.goal_id = g.id
+    JOIN roadmaps r ON g.roadmap_id = r.id
     WHERE r.user_id = auth.uid()
   ));
 ```
@@ -680,7 +680,7 @@ npm run format
 
 ### E2E Tests (Playwright) - Phase 2
 
-- Create theme → initiative → feature flow
+- Create goal → initiative → deliverable flow
 - View switching
 - Drag-to-resize in Gantt
 - Export functionality
@@ -696,7 +696,7 @@ No IE11 support required.
 
 ## Performance Considerations
 
-- Virtualize long lists if themes/initiatives exceed ~50 items
+- Virtualize long lists if goals/initiatives exceed ~50 items
 - Debounce localStorage writes (100ms)
 - Memoize derived data calculations
 - Lazy load export utilities

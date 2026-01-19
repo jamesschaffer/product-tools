@@ -13,7 +13,7 @@ export function GanttHeader({ viewStart, viewMonths = 12 }: GanttHeaderProps) {
     <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
       <div className="flex">
         <div className="w-40 shrink-0 border-r border-gray-200 bg-gray-50 px-3 py-2">
-          <span className="text-xs font-medium text-gray-500">Theme</span>
+          <span className="text-xs font-medium text-gray-500">Goal</span>
         </div>
         <div className="w-48 shrink-0 border-r border-gray-200 bg-gray-50 px-3 py-2">
           <span className="text-xs font-medium text-gray-500">Initiative</span>

@@ -3,37 +3,37 @@ import type { Roadmap } from '../types';
 export const sampleRoadmap: Roadmap = {
   id: 'sample-roadmap-1',
   title: 'Planning Hub',
-  themes: [
+  goals: [
     {
-      id: 'theme-1',
+      id: 'goal-1',
       name: 'Strategy & Research',
       description: 'Discover new policies and maintain authoritative sources',
       desiredOutcome: 'Accelerate policy discovery and research capabilities',
       order: 0,
     },
     {
-      id: 'theme-2',
+      id: 'goal-2',
       name: 'Design',
       description: 'Accelerate policy creation with standardized components',
       desiredOutcome: 'Reduce policy design time through standardization and AI assistance',
       order: 1,
     },
     {
-      id: 'theme-3',
+      id: 'goal-3',
       name: 'Development',
       description: 'Automate code generation and deployment',
       desiredOutcome: 'Remove engineering bottleneck from content creation',
       order: 2,
     },
     {
-      id: 'theme-4',
+      id: 'goal-4',
       name: 'Validation',
       description: 'Reduce validation cycles from weeks to days',
       desiredOutcome: 'Streamline validation through automation',
       order: 3,
     },
     {
-      id: 'theme-5',
+      id: 'goal-5',
       name: 'Maintenance',
       description: 'Proactive policy lifecycle management',
       desiredOutcome: 'Enable proactive policy updates with minimal overhead',
@@ -43,64 +43,64 @@ export const sampleRoadmap: Roadmap = {
   initiatives: [
     {
       id: 'init-1',
-      themeId: 'theme-1',
+      goalId: 'goal-1',
       name: 'AI Assisted Policy Discovery',
       idealOutcome: 'Reduce research time from days to hours',
       order: 0,
     },
     {
       id: 'init-2',
-      themeId: 'theme-2',
+      goalId: 'goal-2',
       name: 'Policy Design Platform',
       idealOutcome: 'Standardized tools that scale SME expertise',
       order: 0,
     },
     {
       id: 'init-3',
-      themeId: 'theme-2',
+      goalId: 'goal-2',
       name: 'AI-Assisted Design',
       idealOutcome: 'AI handles repetitive work, humans handle nuance',
       order: 1,
     },
     {
       id: 'init-4',
-      themeId: 'theme-3',
+      goalId: 'goal-3',
       name: 'Engine Code Generation',
       idealOutcome: 'Remove engineering bottleneck from content creation',
       order: 0,
     },
     {
       id: 'init-5',
-      themeId: 'theme-4',
+      goalId: 'goal-4',
       name: 'Automated Validation Infrastructure',
       idealOutcome: 'Eliminate 70% of manual validation overhead',
       order: 0,
     },
     {
       id: 'init-6',
-      themeId: 'theme-4',
+      goalId: 'goal-4',
       name: 'AI-Assisted Validation',
       idealOutcome: 'Focus SME time on edge cases, not data prep',
       order: 1,
     },
     {
       id: 'init-7',
-      themeId: 'theme-5',
+      goalId: 'goal-5',
       name: 'Reference Source Platform',
       idealOutcome: 'Single source of truth for regulatory content',
       order: 0,
     },
     {
       id: 'init-8',
-      themeId: 'theme-5',
+      goalId: 'goal-5',
       name: 'Policy Lifecycle Management',
       idealOutcome: 'Proactive policy updates with minimal manual overhead',
       order: 1,
     },
   ],
-  features: [
+  deliverables: [
     {
-      id: 'feat-1',
+      id: 'deliverable-1',
       initiativeId: 'init-1',
       name: 'NoSQL Claim Finder Tool',
       status: 'shipped',
@@ -109,7 +109,7 @@ export const sampleRoadmap: Roadmap = {
       order: 0,
     },
     {
-      id: 'feat-2',
+      id: 'deliverable-2',
       initiativeId: 'init-1',
       name: 'AI Scoping Tool',
       status: 'shipped',
@@ -118,7 +118,7 @@ export const sampleRoadmap: Roadmap = {
       order: 1,
     },
     {
-      id: 'feat-3',
+      id: 'deliverable-3',
       initiativeId: 'init-1',
       name: 'AI Policy Discovery Agents',
       status: 'planned',
@@ -127,7 +127,7 @@ export const sampleRoadmap: Roadmap = {
       order: 2,
     },
     {
-      id: 'feat-4',
+      id: 'deliverable-4',
       initiativeId: 'init-2',
       name: 'SPE Policy Builder',
       status: 'shipped',
@@ -136,7 +136,7 @@ export const sampleRoadmap: Roadmap = {
       order: 0,
     },
     {
-      id: 'feat-5',
+      id: 'deliverable-5',
       initiativeId: 'init-2',
       name: 'JIRA to Policy Manager Integration',
       status: 'shipped',
@@ -145,7 +145,7 @@ export const sampleRoadmap: Roadmap = {
       order: 1,
     },
     {
-      id: 'feat-6',
+      id: 'deliverable-6',
       initiativeId: 'init-2',
       name: 'Self-serve DDE Deployment',
       status: 'shipped',
@@ -154,7 +154,7 @@ export const sampleRoadmap: Roadmap = {
       order: 2,
     },
     {
-      id: 'feat-7',
+      id: 'deliverable-7',
       initiativeId: 'init-2',
       name: 'Drug Policy Builder',
       status: 'in-progress',
@@ -163,7 +163,7 @@ export const sampleRoadmap: Roadmap = {
       order: 3,
     },
     {
-      id: 'feat-8',
+      id: 'deliverable-8',
       initiativeId: 'init-2',
       name: 'SPE Logic Library',
       status: 'in-progress',
@@ -172,7 +172,7 @@ export const sampleRoadmap: Roadmap = {
       order: 4,
     },
     {
-      id: 'feat-9',
+      id: 'deliverable-9',
       initiativeId: 'init-3',
       name: 'AI-Generated DDE Specification',
       status: 'shipped',
@@ -181,7 +181,7 @@ export const sampleRoadmap: Roadmap = {
       order: 0,
     },
     {
-      id: 'feat-10',
+      id: 'deliverable-10',
       initiativeId: 'init-3',
       name: 'AI-Assisted SPE Logic Definition',
       status: 'planned',
@@ -190,7 +190,7 @@ export const sampleRoadmap: Roadmap = {
       order: 1,
     },
     {
-      id: 'feat-11',
+      id: 'deliverable-11',
       initiativeId: 'init-3',
       name: 'AI-Assisted Test Claim Generation',
       status: 'planned',
@@ -199,7 +199,7 @@ export const sampleRoadmap: Roadmap = {
       order: 2,
     },
     {
-      id: 'feat-12',
+      id: 'deliverable-12',
       initiativeId: 'init-4',
       name: 'Standard Python Code Templates',
       status: 'in-progress',
@@ -208,7 +208,7 @@ export const sampleRoadmap: Roadmap = {
       order: 0,
     },
     {
-      id: 'feat-13',
+      id: 'deliverable-13',
       initiativeId: 'init-4',
       name: 'Automated Python Code Generation',
       status: 'planned',
@@ -217,7 +217,7 @@ export const sampleRoadmap: Roadmap = {
       order: 1,
     },
     {
-      id: 'feat-14',
+      id: 'deliverable-14',
       initiativeId: 'init-5',
       name: 'NoSQL Claim Finder Tool',
       status: 'shipped',
@@ -226,7 +226,7 @@ export const sampleRoadmap: Roadmap = {
       order: 0,
     },
     {
-      id: 'feat-15',
+      id: 'deliverable-15',
       initiativeId: 'init-5',
       name: 'Automated Validation Data Pipeline',
       status: 'shipped',
@@ -235,7 +235,7 @@ export const sampleRoadmap: Roadmap = {
       order: 1,
     },
     {
-      id: 'feat-16',
+      id: 'deliverable-16',
       initiativeId: 'init-6',
       name: 'Validation Workflow Analysis',
       status: 'in-progress',
@@ -244,7 +244,7 @@ export const sampleRoadmap: Roadmap = {
       order: 0,
     },
     {
-      id: 'feat-17',
+      id: 'deliverable-17',
       initiativeId: 'init-6',
       name: 'AI-Assisted Validation Automation',
       status: 'planned',
@@ -253,7 +253,7 @@ export const sampleRoadmap: Roadmap = {
       order: 1,
     },
     {
-      id: 'feat-18',
+      id: 'deliverable-18',
       initiativeId: 'init-7',
       name: 'Ref Doc Architecture Upgrade',
       status: 'in-progress',
@@ -262,7 +262,7 @@ export const sampleRoadmap: Roadmap = {
       order: 0,
     },
     {
-      id: 'feat-19',
+      id: 'deliverable-19',
       initiativeId: 'init-7',
       name: 'Reference Source Management Tools',
       status: 'in-progress',
@@ -271,7 +271,7 @@ export const sampleRoadmap: Roadmap = {
       order: 1,
     },
     {
-      id: 'feat-20',
+      id: 'deliverable-20',
       initiativeId: 'init-7',
       name: 'Automated Source Monitoring',
       status: 'planned',
@@ -280,7 +280,7 @@ export const sampleRoadmap: Roadmap = {
       order: 2,
     },
     {
-      id: 'feat-21',
+      id: 'deliverable-21',
       initiativeId: 'init-7',
       name: 'AI-Assisted Version Management',
       status: 'planned',
@@ -289,7 +289,7 @@ export const sampleRoadmap: Roadmap = {
       order: 3,
     },
     {
-      id: 'feat-22',
+      id: 'deliverable-22',
       initiativeId: 'init-8',
       name: 'Automated Impact Analysis',
       status: 'planned',
@@ -298,7 +298,7 @@ export const sampleRoadmap: Roadmap = {
       order: 0,
     },
     {
-      id: 'feat-23',
+      id: 'deliverable-23',
       initiativeId: 'init-8',
       name: 'Guided Policy Update Workflows',
       status: 'planned',
@@ -307,7 +307,7 @@ export const sampleRoadmap: Roadmap = {
       order: 1,
     },
     {
-      id: 'feat-24',
+      id: 'deliverable-24',
       initiativeId: 'init-8',
       name: 'AI-Assisted Policy Updates',
       status: 'planned',

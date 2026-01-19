@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { Button, Input, Textarea, Select } from '../ui';
-import type { Feature, FeatureStatus } from '../../types';
+import type { Deliverable, DeliverableStatus } from '../../types';
 
-interface FeatureFormProps {
-  feature?: Feature;
+interface DeliverableFormProps {
+  deliverable?: Deliverable;
   onSubmit: (data: {
     name: string;
     description?: string;
-    status: FeatureStatus;
+    status: DeliverableStatus;
     startDate?: string;
     endDate?: string;
   }) => void;
@@ -20,12 +20,12 @@ const statusOptions = [
   { value: 'shipped', label: 'Shipped' },
 ];
 
-export function FeatureForm({ feature, onSubmit, onCancel }: FeatureFormProps) {
-  const [name, setName] = useState(feature?.name || '');
-  const [description, setDescription] = useState(feature?.description || '');
-  const [status, setStatus] = useState<FeatureStatus>(feature?.status || 'planned');
-  const [startDate, setStartDate] = useState(feature?.startDate || '');
-  const [endDate, setEndDate] = useState(feature?.endDate || '');
+export function DeliverableForm({ deliverable, onSubmit, onCancel }: DeliverableFormProps) {
+  const [name, setName] = useState(deliverable?.name || '');
+  const [description, setDescription] = useState(deliverable?.description || '');
+  const [status, setStatus] = useState<DeliverableStatus>(deliverable?.status || 'planned');
+  const [startDate, setStartDate] = useState(deliverable?.startDate || '');
+  const [endDate, setEndDate] = useState(deliverable?.endDate || '');
   const [dateError, setDateError] = useState('');
 
   const handleSubmit = (e: FormEvent) => {
@@ -50,7 +50,7 @@ export function FeatureForm({ feature, onSubmit, onCancel }: FeatureFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input
-        label="Feature Name"
+        label="Deliverable Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="e.g., User Authentication"
@@ -61,12 +61,12 @@ export function FeatureForm({ feature, onSubmit, onCancel }: FeatureFormProps) {
         label="Description (optional)"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        placeholder="Brief description of this feature"
+        placeholder="Brief description of this deliverable"
       />
       <Select
         label="Status"
         value={status}
-        onChange={(e) => setStatus(e.target.value as FeatureStatus)}
+        onChange={(e) => setStatus(e.target.value as DeliverableStatus)}
         options={statusOptions}
       />
       <div className="grid grid-cols-2 gap-4">
@@ -89,7 +89,7 @@ export function FeatureForm({ feature, onSubmit, onCancel }: FeatureFormProps) {
           Cancel
         </Button>
         <Button type="submit" variant="primary">
-          {feature ? 'Save Changes' : 'Add Feature'}
+          {deliverable ? 'Save Changes' : 'Add Deliverable'}
         </Button>
       </div>
     </form>

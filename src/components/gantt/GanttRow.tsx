@@ -1,29 +1,29 @@
-import { FeatureBar } from './FeatureBar';
+import { DeliverableBar } from './DeliverableBar';
 import { UnscheduledRow } from './UnscheduledRow';
 import type { GanttRowData } from '../../utils';
-import type { Feature } from '../../types';
+import type { Deliverable } from '../../types';
 
 interface GanttRowProps {
   row: GanttRowData;
   viewStart: Date;
   viewMonths: number;
-  onUpdateFeature: (feature: Feature) => void;
+  onUpdateDeliverable: (deliverable: Deliverable) => void;
 }
 
 export function GanttRow({
   row,
   viewStart,
   viewMonths,
-  onUpdateFeature,
+  onUpdateDeliverable,
 }: GanttRowProps) {
   const {
-    theme,
+    goal,
     initiative,
-    scheduledFeatures,
-    unscheduledFeatures,
+    scheduledDeliverables,
+    unscheduledDeliverables,
     maxStackIndex,
-    isFirstInitiativeInTheme,
-    initiativeCountInTheme,
+    isFirstInitiativeInGoal,
+    initiativeCountInGoal,
   } = row;
 
   const barHeight = 24;
@@ -34,43 +34,43 @@ export function GanttRow({
     (maxStackIndex + 1) * (barHeight + barGap) + 8
   );
 
-  const handleUpdateDates = (featureId: string) => (startDate: string, endDate: string) => {
-    const feature = scheduledFeatures.find((f) => f.id === featureId);
-    if (feature) {
-      onUpdateFeature({
-        ...feature,
+  const handleUpdateDates = (deliverableId: string) => (startDate: string, endDate: string) => {
+    const deliverable = scheduledDeliverables.find((d) => d.id === deliverableId);
+    if (deliverable) {
+      onUpdateDeliverable({
+        ...deliverable,
         startDate,
         endDate,
       });
     }
   };
 
-  const isEmptyTheme = initiativeCountInTheme === 0;
+  const isEmptyGoal = initiativeCountInGoal === 0;
 
   return (
     <div className="border-b border-gray-200">
       <div className="flex">
-        {isFirstInitiativeInTheme && (
+        {isFirstInitiativeInGoal && (
           <div
             className="w-40 shrink-0 border-r border-gray-200 bg-gray-50 px-3 py-2"
             style={{
-              gridRow: `span ${initiativeCountInTheme || 1}`,
+              gridRow: `span ${initiativeCountInGoal || 1}`,
             }}
           >
-            <div className="text-sm font-medium text-gray-900">{theme.name}</div>
-            {theme.description && (
+            <div className="text-sm font-medium text-gray-900">{goal.name}</div>
+            {goal.description && (
               <div className="text-[10px] text-gray-500 mt-0.5 line-clamp-2">
-                {theme.description}
+                {goal.description}
               </div>
             )}
           </div>
         )}
-        {!isFirstInitiativeInTheme && (
+        {!isFirstInitiativeInGoal && (
           <div className="w-40 shrink-0 border-r border-gray-200" />
         )}
 
         <div className="w-48 shrink-0 border-r border-gray-200 px-3 py-2">
-          {!isEmptyTheme && (
+          {!isEmptyGoal && (
             <>
               <div className="text-sm font-medium text-gray-800">
                 {initiative.name}
@@ -82,7 +82,7 @@ export function GanttRow({
               )}
             </>
           )}
-          {isEmptyTheme && (
+          {isEmptyGoal && (
             <div className="text-sm text-gray-400 italic">No initiatives</div>
           )}
         </div>
@@ -101,25 +101,25 @@ export function GanttRow({
             ))}
           </div>
 
-          {scheduledFeatures.map((feature) => (
-            <FeatureBar
-              key={feature.id}
-              feature={feature}
+          {scheduledDeliverables.map((deliverable) => (
+            <DeliverableBar
+              key={deliverable.id}
+              deliverable={deliverable}
               viewStart={viewStart}
               viewMonths={viewMonths}
-              stackIndex={feature.stackIndex}
-              onUpdateDates={handleUpdateDates(feature.id)}
+              stackIndex={deliverable.stackIndex}
+              onUpdateDates={handleUpdateDates(deliverable.id)}
             />
           ))}
         </div>
       </div>
 
-      {unscheduledFeatures.length > 0 && (
+      {unscheduledDeliverables.length > 0 && (
         <div className="flex">
           <div className="w-40 shrink-0 border-r border-gray-200" />
           <div className="w-48 shrink-0 border-r border-gray-200" />
           <div className="flex-1">
-            <UnscheduledRow features={unscheduledFeatures} />
+            <UnscheduledRow deliverables={unscheduledDeliverables} />
           </div>
         </div>
       )}

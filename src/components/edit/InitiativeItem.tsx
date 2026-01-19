@@ -1,41 +1,41 @@
 import { useState } from 'react';
 import { Button, Modal, ConfirmDialog } from '../ui';
 import { InitiativeForm } from './InitiativeForm';
-import { FeatureForm } from './FeatureForm';
-import { FeatureItem } from './FeatureItem';
-import type { Initiative, Feature, FeatureStatus } from '../../types';
+import { DeliverableForm } from './DeliverableForm';
+import { DeliverableItem } from './DeliverableItem';
+import type { Initiative, Deliverable, DeliverableStatus } from '../../types';
 
 interface InitiativeItemProps {
   initiative: Initiative;
-  features: Feature[];
+  deliverables: Deliverable[];
   onUpdate: (initiative: Initiative) => void;
   onDelete: (id: string) => void;
-  onAddFeature: (data: {
+  onAddDeliverable: (data: {
     name: string;
     description?: string;
-    status: FeatureStatus;
+    status: DeliverableStatus;
     startDate?: string;
     endDate?: string;
   }) => void;
-  onUpdateFeature: (feature: Feature) => void;
-  onDeleteFeature: (id: string) => void;
+  onUpdateDeliverable: (deliverable: Deliverable) => void;
+  onDeleteDeliverable: (id: string) => void;
 }
 
 export function InitiativeItem({
   initiative,
-  features,
+  deliverables,
   onUpdate,
   onDelete,
-  onAddFeature,
-  onUpdateFeature,
-  onDeleteFeature,
+  onAddDeliverable,
+  onUpdateDeliverable,
+  onDeleteDeliverable,
 }: InitiativeItemProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [isAddingFeature, setIsAddingFeature] = useState(false);
+  const [isAddingDeliverable, setIsAddingDeliverable] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const hasFeatures = features.length > 0;
+  const hasDeliverables = deliverables.length > 0;
 
   const handleUpdate = (data: { name: string; idealOutcome: string }) => {
     onUpdate({
@@ -46,7 +46,7 @@ export function InitiativeItem({
   };
 
   const handleDelete = () => {
-    if (hasFeatures) return;
+    if (hasDeliverables) return;
     onDelete(initiative.id);
   };
 
@@ -81,8 +81,8 @@ export function InitiativeItem({
             variant="ghost"
             size="sm"
             onClick={() => setShowDeleteConfirm(true)}
-            disabled={hasFeatures}
-            title={hasFeatures ? 'Remove all features first' : undefined}
+            disabled={hasDeliverables}
+            title={hasDeliverables ? 'Remove all deliverables first' : undefined}
           >
             Delete
           </Button>
@@ -91,21 +91,21 @@ export function InitiativeItem({
 
       {isExpanded && (
         <div className="ml-6 mt-1 space-y-1">
-          {features.map((feature) => (
-            <FeatureItem
-              key={feature.id}
-              feature={feature}
-              onUpdate={onUpdateFeature}
-              onDelete={onDeleteFeature}
+          {deliverables.map((deliverable) => (
+            <DeliverableItem
+              key={deliverable.id}
+              deliverable={deliverable}
+              onUpdate={onUpdateDeliverable}
+              onDelete={onDeleteDeliverable}
             />
           ))}
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsAddingFeature(true)}
+            onClick={() => setIsAddingDeliverable(true)}
             className="mt-2 text-gray-500"
           >
-            + Add Feature
+            + Add Deliverable
           </Button>
         </div>
       )}
@@ -123,16 +123,16 @@ export function InitiativeItem({
       </Modal>
 
       <Modal
-        isOpen={isAddingFeature}
-        onClose={() => setIsAddingFeature(false)}
-        title="Add Feature"
+        isOpen={isAddingDeliverable}
+        onClose={() => setIsAddingDeliverable(false)}
+        title="Add Deliverable"
       >
-        <FeatureForm
+        <DeliverableForm
           onSubmit={(data) => {
-            onAddFeature(data);
-            setIsAddingFeature(false);
+            onAddDeliverable(data);
+            setIsAddingDeliverable(false);
           }}
-          onCancel={() => setIsAddingFeature(false)}
+          onCancel={() => setIsAddingDeliverable(false)}
         />
       </Modal>
 
@@ -142,8 +142,8 @@ export function InitiativeItem({
         onConfirm={handleDelete}
         title="Delete Initiative"
         message={
-          hasFeatures
-            ? `Cannot delete "${initiative.name}" because it has ${features.length} feature(s). Remove all features first.`
+          hasDeliverables
+            ? `Cannot delete "${initiative.name}" because it has ${deliverables.length} deliverable(s). Remove all deliverables first.`
             : `Are you sure you want to delete "${initiative.name}"? This action cannot be undone.`
         }
         confirmLabel="Delete"

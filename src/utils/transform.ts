@@ -1,41 +1,41 @@
 import type {
   Roadmap,
-  ThemeWithChildren,
+  GoalWithChildren,
   InitiativeWithChildren,
 } from '../types';
 
-export function buildNestedStructure(roadmap: Roadmap): ThemeWithChildren[] {
-  const sortedThemes = [...roadmap.themes].sort((a, b) => a.order - b.order);
+export function buildNestedStructure(roadmap: Roadmap): GoalWithChildren[] {
+  const sortedGoals = [...roadmap.goals].sort((a, b) => a.order - b.order);
 
-  return sortedThemes.map((theme) => {
-    const themeInitiatives = roadmap.initiatives
-      .filter((i) => i.themeId === theme.id)
+  return sortedGoals.map((goal) => {
+    const goalInitiatives = roadmap.initiatives
+      .filter((i) => i.goalId === goal.id)
       .sort((a, b) => a.order - b.order);
 
-    const initiativesWithFeatures: InitiativeWithChildren[] = themeInitiatives.map(
+    const initiativesWithDeliverables: InitiativeWithChildren[] = goalInitiatives.map(
       (initiative) => {
-        const features = roadmap.features
-          .filter((f) => f.initiativeId === initiative.id)
+        const deliverables = roadmap.deliverables
+          .filter((d) => d.initiativeId === initiative.id)
           .sort((a, b) => a.order - b.order);
 
         return {
           ...initiative,
-          features,
+          deliverables,
         };
       }
     );
 
     return {
-      ...theme,
-      initiatives: initiativesWithFeatures,
+      ...goal,
+      initiatives: initiativesWithDeliverables,
     };
   });
 }
 
-export function getFeaturesByStatus(roadmap: Roadmap) {
-  const shipped = roadmap.features.filter((f) => f.status === 'shipped').length;
-  const inProgress = roadmap.features.filter((f) => f.status === 'in-progress').length;
-  const planned = roadmap.features.filter((f) => f.status === 'planned').length;
+export function getDeliverablesByStatus(roadmap: Roadmap) {
+  const shipped = roadmap.deliverables.filter((d) => d.status === 'shipped').length;
+  const inProgress = roadmap.deliverables.filter((d) => d.status === 'in-progress').length;
+  const planned = roadmap.deliverables.filter((d) => d.status === 'planned').length;
 
-  return { shipped, inProgress, planned, total: roadmap.features.length };
+  return { shipped, inProgress, planned, total: roadmap.deliverables.length };
 }

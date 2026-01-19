@@ -4,7 +4,7 @@ A browser-based toolkit for visualizing product roadmaps. Provides multiple view
 
 ## Views
 
-- **Edit View**: Manage themes, initiatives, and features with full CRUD operations
+- **Edit View**: Manage goals, initiatives, and deliverables with full CRUD operations
 - **Gantt View**: Timeline visualization with drag-to-resize for date adjustments
 - **Slide View**: Presentation-ready status view for executive updates
 
@@ -25,18 +25,18 @@ npm run build
 
 - **Unified Data Model**: Single source of truth for all views
 - **Auto-Save**: Changes persist automatically to localStorage
-- **Drag-to-Resize**: Adjust feature dates directly in Gantt view
+- **Drag-to-Resize**: Adjust deliverable dates directly in Gantt view
 - **Export**: Print/PDF export, JSON import/export
 - **Settings**: Customize title, fonts, colors, and view start date
 
 ## Data Model
 
 ```
-Theme
+Goal
 ├── name, description, desiredOutcome
 └── Initiatives[]
     ├── name, idealOutcome
-    └── Features[]
+    └── Deliverables[]
         ├── name, description
         ├── status (shipped | in-progress | planned)
         └── startDate, endDate

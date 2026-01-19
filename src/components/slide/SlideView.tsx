@@ -1,19 +1,19 @@
 import { useRoadmapData } from '../../context';
 import { buildNestedStructure } from '../../utils';
-import { ThemeColumn } from './ThemeColumn';
+import { GoalColumn } from './GoalColumn';
 import { Legend } from './Legend';
 
 export function SlideView() {
   const roadmap = useRoadmapData();
   const nestedData = buildNestedStructure(roadmap);
 
-  if (roadmap.themes.length === 0) {
+  if (roadmap.goals.length === 0) {
     return (
       <div className="p-6">
         <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
           <p className="text-gray-500">No data to display</p>
           <p className="mt-2 text-sm text-gray-400">
-            Add themes and features in the Edit view
+            Add goals and deliverables in the Edit view
           </p>
         </div>
       </div>
@@ -36,8 +36,8 @@ export function SlideView() {
         </div>
 
         <div className="flex gap-5 overflow-x-auto pb-4 mb-8">
-          {nestedData.map((theme) => (
-            <ThemeColumn key={theme.id} theme={theme} />
+          {nestedData.map((goal) => (
+            <GoalColumn key={goal.id} goal={goal} />
           ))}
         </div>
 

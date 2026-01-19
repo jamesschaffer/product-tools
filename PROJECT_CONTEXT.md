@@ -19,14 +19,14 @@ Currently, these are separate artifacts that drift out of sync. This toolkit sol
 The toolkit uses a hierarchical data model:
 
 ```
-Theme
+Goal
 ├── name
 ├── description
 ├── desiredOutcome (free text)
 └── Initiatives[]
     ├── name
     ├── idealOutcome (free text)
-    └── Features[]
+    └── Deliverables[]
         ├── name
         ├── description
         ├── status (shipped | in-progress | planned)
@@ -34,32 +34,32 @@ Theme
         └── endDate
 ```
 
-**Theme**: A high-level strategic category. Has a desired outcome describing the directional goal. Renders as a swimlane in Gantt view, a column in slide view.
+**Goal**: A high-level strategic category. Has a desired outcome describing the directional goal. Renders as a swimlane in Gantt view, a column in slide view.
 
-**Initiative**: A grouping of related features within a theme. Has an ideal outcome describing what success looks like. Renders as a card/section in slide view (outcome shown at bottom of card), and as a second-level row grouping in Gantt view (outcome shown as small text below initiative name).
+**Initiative**: A grouping of related deliverables within a goal. Has an ideal outcome describing what success looks like. Renders as a card/section in slide view (outcome shown at bottom of card), and as a second-level row grouping in Gantt view (outcome shown as small text below initiative name).
 
-**Feature**: A discrete piece of work. Renders as a timeline bar in Gantt view (using dates), a line item with status badge in slide view (using status).
+**Deliverable**: A discrete piece of work. Renders as a timeline bar in Gantt view (using dates), a line item with status badge in slide view (using status).
 
 ### Views
 
 **Gantt View** (display + limited editing)
 - Horizontal timeline with quarters/months
-- Two-level row hierarchy: Theme (left column) → Initiative (second column)
+- Two-level row hierarchy: Goal (left column) → Initiative (second column)
 - Initiative outcome displayed as small text below initiative name
-- Features as horizontal bars positioned by start/end date within their initiative row
+- Deliverables as horizontal bars positioned by start/end date within their initiative row
 - Drag-to-resize for date adjustments (only editing allowed in this view)
-- Overlapping features stack within their initiative row
+- Overlapping deliverables stack within their initiative row
 
 **Slide View** (display only)
-- Themes as columns (left to right)
+- Goals as columns (left to right)
 - Initiatives as grouped cards within each column
-- Features listed with status badges (Shipped, In Progress, Planned)
+- Deliverables listed with status badges (Shipped, In Progress, Planned)
 - Outcome statements per initiative
 - Designed for embedding in presentations
 
 **Edit View** (data management)
 - Dedicated page for all content entry and management
-- Full CRUD operations for themes, initiatives, and features
+- Full CRUD operations for goals, initiatives, and deliverables
 - Form-based interface for structured data entry
 
 ### Navigation
@@ -73,7 +73,7 @@ The toolkit is fully functional with all six development phases complete. All th
 
 | Component | Description | Status |
 |-----------|-------------|--------|
-| Edit View | Full CRUD for themes, initiatives, features with validation | Complete |
+| Edit View | Full CRUD for goals, initiatives, deliverables with validation | Complete |
 | Gantt View | Timeline visualization with drag-to-resize | Complete |
 | Slide View | Presentation-ready status view | Complete |
 | Settings | Title, font, color theme, view start date | Complete |
@@ -84,7 +84,7 @@ The toolkit is fully functional with all six development phases complete. All th
 | Keyboard Shortcuts | Escape to close modals | Complete |
 
 ### Recent Updates
-- Gantt chart layout fix: Feature bars now properly constrain to the timeline area (no bleeding into label columns)
+- Gantt chart layout fix: Deliverable bars now properly constrain to the timeline area (no bleeding into label columns)
 - Settings modal: Now syncs form values with current data when opened
 - UI polish: Default title changed to "Planning Hub", slide view padding adjusted, cleaner presentation
 
@@ -112,23 +112,23 @@ The original standalone files are preserved in the `legacy/` folder for referenc
 ## Features
 
 ### Data Management (Edit View)
-- Create, edit, delete themes
-- Create, edit, delete initiatives within themes
-- Create, edit, delete features within initiatives
-- Set theme desired outcomes
+- Create, edit, delete goals
+- Create, edit, delete initiatives within goals
+- Create, edit, delete deliverables within initiatives
+- Set goal desired outcomes
 - Set initiative ideal outcomes
-- Set feature dates (for Gantt) and status (for Slide)
+- Set deliverable dates (for Gantt) and status (for Slide)
 
 ### Gantt View Features
 - Customizable view start month
 - 12-month rolling view
-- Drag-to-resize feature bars (adjusts dates)
-- Automatic stacking of overlapping features
+- Drag-to-resize deliverable bars (adjusts dates)
+- Automatic stacking of overlapping deliverables
 
 ### Slide View Features
 - Status badges (Shipped, In Progress, Planned)
 - Outcome statements per initiative
-- Theme desired outcomes displayed
+- Goal desired outcomes displayed
 - Clean presentation-ready layout
 
 ### Export
@@ -173,15 +173,15 @@ The tool is designed to be portable across roles and organizations. While MVP us
 product-tools/
 ├── src/
 │   ├── components/
-│   │   ├── edit/           # Edit view components (ThemeItem, InitiativeItem, FeatureItem, forms)
-│   │   ├── gantt/          # Gantt view components (GanttView, GanttRow, FeatureBar, etc.)
-│   │   ├── slide/          # Slide view components (SlideView, ThemeColumn, InitiativeCard, etc.)
+│   │   ├── edit/           # Edit view components (GoalItem, InitiativeItem, DeliverableItem, forms)
+│   │   ├── gantt/          # Gantt view components (GanttView, GanttRow, DeliverableBar, etc.)
+│   │   ├── slide/          # Slide view components (SlideView, GoalColumn, InitiativeCard, etc.)
 │   │   ├── settings/       # Settings modal
 │   │   ├── export/         # Export modal
 │   │   ├── layout/         # Toolbar, ViewSwitcher
 │   │   └── ui/             # Shared UI components (Button, Input, Modal, etc.)
 │   ├── context/            # RoadmapContext with useReducer state management
-│   ├── types/              # TypeScript interfaces (Roadmap, Theme, Initiative, Feature)
+│   ├── types/              # TypeScript interfaces (Roadmap, Goal, Initiative, Deliverable)
 │   ├── utils/              # Utilities (dates, storage, gantt calculations, transforms)
 │   ├── data/               # Sample roadmap data
 │   ├── App.tsx             # Main app with routing
@@ -212,9 +212,9 @@ npm run build
 ## Usage
 
 1. Navigate to Edit view to manage content
-2. Add themes with desired outcomes
-3. Add initiatives within themes with ideal outcomes
-4. Add features with dates and status
+2. Add goals with desired outcomes
+3. Add initiatives within goals with ideal outcomes
+4. Add deliverables with dates and status
 5. Switch to Gantt view for timeline visualization
 6. Switch to Slide view for presentation-ready output
 7. Export either view for use in documents or presentations
