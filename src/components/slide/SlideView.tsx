@@ -13,7 +13,7 @@ export function SlideView() {
         <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
           <p className="text-gray-500">No data to display</p>
           <p className="mt-2 text-sm text-gray-400">
-            Add goals and deliverables in the Edit view
+            Add goals and deliverables in the Editor
           </p>
         </div>
       </div>
@@ -27,9 +27,9 @@ export function SlideView() {
         className="py-6 pl-6"
       >
         <div className="mb-6">
-          <h2 className="text-lg font-medium text-gray-900">Goal Review</h2>
+          <h2 className="text-lg font-medium text-gray-900">Overview</h2>
           <p className="text-sm text-gray-500">
-            Slide based view of Goals and Initiatives
+            Goals and initiatives by priority
           </p>
         </div>
 

@@ -66,7 +66,7 @@ export function GanttView() {
         <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
           <p className="text-gray-500">No data to display</p>
           <p className="mt-2 text-sm text-gray-400">
-            Add goals and deliverables in the Edit view
+            Add goals and deliverables in the Editor
           </p>
         </div>
       </div>
@@ -76,9 +76,9 @@ export function GanttView() {
   return (
     <div className="h-[calc(100vh-73px)] flex flex-col">
       <div className="p-6 border-b border-gray-200 bg-white">
-        <h2 className="text-lg font-medium text-gray-900">{roadmap.title}</h2>
+        <h2 className="text-lg font-medium text-gray-900">Timeline</h2>
         <p className="text-sm text-gray-500">
-          Timeline view • Drag deliverable edges to adjust dates
+          Drag deliverable edges to adjust dates
         </p>
       </div>
 

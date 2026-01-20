@@ -1,9 +1,9 @@
 import { NavLink } from 'react-router-dom';
 
 const views = [
-  { path: '/edit', label: 'Edit' },
-  { path: '/gantt', label: 'Gantt' },
-  { path: '/slide', label: 'Slide' },
+  { path: '/edit', label: 'Editor' },
+  { path: '/gantt', label: 'Timeline' },
+  { path: '/slide', label: 'Overview' },
 ];
 
 export function ViewSwitcher() {

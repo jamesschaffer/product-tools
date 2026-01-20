@@ -5,9 +5,9 @@ interface DeliverableListItemProps {
 }
 
 const statusStyles: Record<DeliverableStatus, string> = {
-  shipped: 'bg-green-600',
-  'in-progress': 'bg-blue-600',
-  planned: 'bg-white border border-slate-300',
+  shipped: 'bg-teal-500',
+  'in-progress': 'bg-slate-700',
+  planned: 'bg-slate-200 border border-slate-300',
 };
 
 export function DeliverableListItem({ deliverable }: DeliverableListItemProps) {

@@ -13,11 +13,11 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
   const getCurrentViewName = () => {
     switch (location.pathname) {
       case '/gantt':
-        return 'Gantt Chart';
+        return 'Timeline';
       case '/slide':
-        return 'Slide View';
+        return 'Overview';
       case '/edit':
-        return 'Edit View';
+        return 'Editor';
       default:
         return 'Current View';
     }

@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { DeliverableBar } from './DeliverableBar';
 import { UnscheduledRow } from './UnscheduledRow';
 import { Tooltip } from '../ui';
+import { generateMonthLabels } from '../../utils';
 import type { GanttRowData } from '../../utils';
 import type { Deliverable } from '../../types';
 
@@ -43,6 +45,11 @@ export function GanttInitiativeRow({
   const isEmptyGoal = initiativeCountInGoal === 0;
   const rowBorderClass = isLast ? '' : 'border-b border-gray-200';
 
+  const monthLabels = useMemo(
+    () => generateMonthLabels(viewStart, viewMonths),
+    [viewStart, viewMonths]
+  );
+
   return (
     <div>
       <div className="flex">
@@ -76,13 +83,16 @@ export function GanttInitiativeRow({
         >
           {/* Grid lines */}
           <div className="absolute inset-0 flex">
-            {Array.from({ length: viewMonths }).map((_, i) => (
-              <div
-                key={i}
-                className="flex-1 border-r border-gray-100"
-                style={{ width: `${100 / viewMonths}%` }}
-              />
-            ))}
+            {monthLabels.map((month, i) => {
+              const isQuarterEnd = (i + 1) % 3 === 0;
+              return (
+                <div
+                  key={`${month.month}-${month.year}-${i}`}
+                  className={`border-r ${isQuarterEnd ? 'border-gray-200' : 'border-gray-100'}`}
+                  style={{ width: `${month.widthPercent}%` }}
+                />
+              );
+            })}
           </div>
 
           {/* Deliverable bars */}

@@ -11,8 +11,8 @@ interface DeliverableBarProps {
 }
 
 const statusColors: Record<DeliverableStatus, string> = {
-  shipped: 'bg-slate-700 border-slate-800',
-  'in-progress': 'bg-teal-500 border-teal-600',
+  shipped: 'bg-teal-500 border-teal-600',
+  'in-progress': 'bg-slate-700 border-slate-800',
   planned: 'bg-slate-200 border-slate-300',
 };
 

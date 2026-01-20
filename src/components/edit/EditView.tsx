@@ -121,9 +121,9 @@ export function EditView() {
     <div className="p-6 max-w-5xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-medium text-gray-900">Edit Roadmap</h2>
+          <h2 className="text-lg font-medium text-gray-900">Roadmap Editor</h2>
           <p className="text-sm text-gray-500">
-            Manage goals, initiatives, and deliverables
+            Build and organize goals, initiatives, and deliverables
           </p>
         </div>
         <Button variant="primary" onClick={() => setIsAddingGoal(true)}>
