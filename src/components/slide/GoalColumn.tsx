@@ -8,10 +8,10 @@ interface GoalColumnProps {
 export function GoalColumn({ goal }: GoalColumnProps) {
   return (
     <div className="flex flex-col min-w-[280px] max-w-[320px]">
-      <div className="bg-slate-800 text-white px-3 py-4 rounded-t-lg text-center">
-        <h3 className="text-sm font-semibold mb-1">{goal.name}</h3>
+      <div className="bg-slate-800 text-white px-3 py-4 rounded-t-lg h-[96px]">
+        <h3 className="text-base font-semibold line-clamp-2">{goal.name}</h3>
         {goal.description && (
-          <p className="text-[11px] italic opacity-85 leading-snug">
+          <p className="text-sm opacity-85 leading-snug line-clamp-2">
             {goal.description}
           </p>
         )}
@@ -27,7 +27,7 @@ export function GoalColumn({ goal }: GoalColumnProps) {
         )}
       </div>
       <div className="bg-slate-100 border border-t-0 border-slate-200 rounded-b-lg px-3 py-2">
-        <p className="text-[10px] text-slate-600 leading-snug">
+        <p className="text-xs text-slate-600 leading-snug">
           <span className="font-medium">Desired Outcome:</span> {goal.desiredOutcome}
         </p>
       </div>

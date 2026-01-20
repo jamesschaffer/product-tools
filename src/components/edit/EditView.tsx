@@ -118,7 +118,7 @@ export function EditView() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6 max-w-5xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-medium text-gray-900">Edit Roadmap</h2>

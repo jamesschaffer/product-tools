@@ -19,7 +19,7 @@ export function InitiativeCard({ initiative }: InitiativeCardProps) {
           <p className="text-xs text-slate-400 italic">No deliverables yet</p>
         )}
       </div>
-      <div className="text-[10px] text-teal-600 font-medium pt-2 border-t border-dashed border-slate-200 leading-snug">
+      <div className="text-xs text-teal-600 font-medium pt-2 border-t border-dashed border-slate-200 leading-snug">
         → {initiative.idealOutcome}
       </div>
     </div>

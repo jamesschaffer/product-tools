@@ -38,7 +38,7 @@ export function GanttView() {
 
   return (
     <div className="h-[calc(100vh-73px)] flex flex-col">
-      <div className="p-4 border-b border-gray-200 bg-white">
+      <div className="p-6 border-b border-gray-200 bg-white">
         <h2 className="text-lg font-medium text-gray-900">{roadmap.title}</h2>
         <p className="text-sm text-gray-500">
           Timeline view • Drag deliverable edges to adjust dates

@@ -24,18 +24,16 @@ export function SlideView() {
     <div className="min-h-screen bg-white">
       <div
         id="slide-export-container"
-        className="max-w-[2000px] mx-auto p-6 md:p-10"
+        className="py-6 pl-6"
       >
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">
-            {roadmap.title}
-          </h1>
-          <p className="text-sm text-slate-500">
-            Policy Lifecycle Capabilities & Investment Status
+        <div className="mb-6">
+          <h2 className="text-lg font-medium text-gray-900">Goal Review</h2>
+          <p className="text-sm text-gray-500">
+            Slide based view of Goals and Initiatives
           </p>
         </div>
 
-        <div className="flex gap-5 overflow-x-auto pb-4 mb-8">
+        <div className="flex gap-3 overflow-x-auto pb-4 mb-8">
           {nestedData.map((goal) => (
             <GoalColumn key={goal.id} goal={goal} />
           ))}
