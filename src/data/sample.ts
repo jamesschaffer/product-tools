@@ -10,6 +10,7 @@ export const sampleRoadmap: Roadmap = {
       description: 'Discover new policies and maintain authoritative sources',
       desiredOutcome: 'Accelerate policy discovery and research capabilities',
       order: 0,
+      priority: 1,
     },
     {
       id: 'goal-2',
@@ -17,6 +18,7 @@ export const sampleRoadmap: Roadmap = {
       description: 'Accelerate policy creation with standardized components',
       desiredOutcome: 'Reduce policy design time through standardization and AI assistance',
       order: 1,
+      priority: 2,
     },
     {
       id: 'goal-3',
@@ -24,6 +26,7 @@ export const sampleRoadmap: Roadmap = {
       description: 'Automate code generation and deployment',
       desiredOutcome: 'Remove engineering bottleneck from content creation',
       order: 2,
+      priority: 3,
     },
     {
       id: 'goal-4',
@@ -31,6 +34,7 @@ export const sampleRoadmap: Roadmap = {
       description: 'Reduce validation cycles from weeks to days',
       desiredOutcome: 'Streamline validation through automation',
       order: 3,
+      priority: 4,
     },
     {
       id: 'goal-5',
@@ -38,6 +42,7 @@ export const sampleRoadmap: Roadmap = {
       description: 'Proactive policy lifecycle management',
       desiredOutcome: 'Enable proactive policy updates with minimal overhead',
       order: 4,
+      priority: 5,
     },
   ],
   initiatives: [

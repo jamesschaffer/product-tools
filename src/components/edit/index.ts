@@ -1,7 +1,9 @@
 export { EditView } from './EditView';
 export { GoalForm } from './GoalForm';
 export { GoalItem } from './GoalItem';
+export { SortableGoalItem } from './SortableGoalItem';
 export { InitiativeForm } from './InitiativeForm';
 export { InitiativeItem } from './InitiativeItem';
 export { DeliverableForm } from './DeliverableForm';
 export { DeliverableItem } from './DeliverableItem';
+export { DeliverablesTable } from './DeliverablesTable';

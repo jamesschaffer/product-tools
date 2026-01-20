@@ -21,10 +21,11 @@ interface RoadmapState {
 }
 
 type RoadmapAction =
-  | { type: 'ADD_GOAL'; payload: Omit<Goal, 'id' | 'order'> }
+  | { type: 'ADD_GOAL'; payload: Omit<Goal, 'id' | 'order' | 'priority'> }
   | { type: 'UPDATE_GOAL'; payload: Goal }
   | { type: 'DELETE_GOAL'; payload: string }
   | { type: 'REORDER_GOALS'; payload: string[] }
+  | { type: 'SET_GOAL_PRIORITY'; payload: { id: string; newPriority: number } }
   | { type: 'ADD_INITIATIVE'; payload: Omit<Initiative, 'id' | 'order'> }
   | { type: 'UPDATE_INITIATIVE'; payload: Initiative }
   | { type: 'DELETE_INITIATIVE'; payload: string }
@@ -71,10 +72,12 @@ function roadmapReducer(state: RoadmapState, action: RoadmapAction): RoadmapStat
 
   switch (action.type) {
     case 'ADD_GOAL': {
+      const newPriority = state.roadmap.goals.length + 1;
       const newGoal: Goal = {
         ...action.payload,
         id: generateId(),
         order: state.roadmap.goals.length,
+        priority: newPriority,
       };
       return updateRoadmap({
         goals: [...state.roadmap.goals, newGoal],
@@ -90,9 +93,18 @@ function roadmapReducer(state: RoadmapState, action: RoadmapAction): RoadmapStat
     }
 
     case 'DELETE_GOAL': {
-      return updateRoadmap({
-        goals: state.roadmap.goals.filter((g) => g.id !== action.payload),
-      });
+      const deletedGoal = state.roadmap.goals.find((g) => g.id === action.payload);
+      if (!deletedGoal) return state;
+
+      const deletedPriority = deletedGoal.priority;
+      const updatedGoals = state.roadmap.goals
+        .filter((g) => g.id !== action.payload)
+        .map((g) => ({
+          ...g,
+          priority: g.priority > deletedPriority ? g.priority - 1 : g.priority,
+        }));
+
+      return updateRoadmap({ goals: updatedGoals });
     }
 
     case 'REORDER_GOALS': {
@@ -101,6 +113,37 @@ function roadmapReducer(state: RoadmapState, action: RoadmapAction): RoadmapStat
         return goal ? { ...goal, order: index } : null;
       }).filter((g): g is Goal => g !== null);
       return updateRoadmap({ goals: reordered });
+    }
+
+    case 'SET_GOAL_PRIORITY': {
+      const { id, newPriority } = action.payload;
+      const goal = state.roadmap.goals.find((g) => g.id === id);
+      if (!goal) return state;
+
+      const oldPriority = goal.priority;
+      if (oldPriority === newPriority) return state;
+
+      const updatedGoals = state.roadmap.goals.map((g) => {
+        if (g.id === id) {
+          return { ...g, priority: newPriority };
+        }
+
+        if (newPriority < oldPriority) {
+          // Moving up: bump goals between newPriority and oldPriority down
+          if (g.priority >= newPriority && g.priority < oldPriority) {
+            return { ...g, priority: g.priority + 1 };
+          }
+        } else {
+          // Moving down: bump goals between oldPriority and newPriority up
+          if (g.priority > oldPriority && g.priority <= newPriority) {
+            return { ...g, priority: g.priority - 1 };
+          }
+        }
+
+        return g;
+      });
+
+      return updateRoadmap({ goals: updatedGoals });
     }
 
     case 'ADD_INITIATIVE': {

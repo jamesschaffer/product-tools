@@ -25,6 +25,7 @@ export interface Goal {
   description?: string;
   desiredOutcome: string;
   order: number;
+  priority: number;
 }
 
 export type ColorTheme = 'blue' | 'green' | 'orange' | 'purple' | 'red' | 'teal' | 'slate';

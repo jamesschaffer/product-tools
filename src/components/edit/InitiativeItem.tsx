@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Button, Modal, ConfirmDialog } from '../ui';
 import { InitiativeForm } from './InitiativeForm';
-import { DeliverableForm } from './DeliverableForm';
-import { DeliverableItem } from './DeliverableItem';
+import { DeliverablesTable } from './DeliverablesTable';
 import type { Initiative, Deliverable, DeliverableStatus } from '../../types';
 
 interface InitiativeItemProps {
@@ -32,7 +31,6 @@ export function InitiativeItem({
 }: InitiativeItemProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [isAddingDeliverable, setIsAddingDeliverable] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const hasDeliverables = deliverables.length > 0;
@@ -51,8 +49,8 @@ export function InitiativeItem({
   };
 
   return (
-    <div className="ml-4 border-l-2 border-gray-200 pl-4">
-      <div className="group flex items-start justify-between py-2">
+    <div className="ml-4 border-l-2 border-gray-200 pl-4 mb-4 last:mb-0">
+      <div className="group flex items-start justify-between pb-1 mb-1">
         <div className="flex items-start gap-2 min-w-0 flex-1">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -60,7 +58,7 @@ export function InitiativeItem({
             aria-label={isExpanded ? 'Collapse' : 'Expand'}
           >
             <svg
-              className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+              className={`h-4 w-4 transition-transform duration-200 ease-in-out ${isExpanded ? 'rotate-90' : 'rotate-0'}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -74,41 +72,41 @@ export function InitiativeItem({
           </div>
         </div>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100">
-          <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
-            Edit
+          <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} title="Edit">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowDeleteConfirm(true)}
             disabled={hasDeliverables}
-            title={hasDeliverables ? 'Remove all deliverables first' : undefined}
+            title={hasDeliverables ? 'Remove all deliverables first' : 'Delete'}
           >
-            Delete
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
           </Button>
         </div>
       </div>
 
-      {isExpanded && (
-        <div className="ml-6 mt-1 space-y-1">
-          {deliverables.map((deliverable) => (
-            <DeliverableItem
-              key={deliverable.id}
-              deliverable={deliverable}
+      <div
+        className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${
+          isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="ml-6 mt-1">
+            <DeliverablesTable
+              deliverables={deliverables}
               onUpdate={onUpdateDeliverable}
               onDelete={onDeleteDeliverable}
+              onAdd={onAddDeliverable}
             />
-          ))}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsAddingDeliverable(true)}
-            className="mt-2 text-gray-500"
-          >
-            + Add Deliverable
-          </Button>
+          </div>
         </div>
-      )}
+      </div>
 
       <Modal
         isOpen={isEditing}
@@ -119,20 +117,6 @@ export function InitiativeItem({
           initiative={initiative}
           onSubmit={handleUpdate}
           onCancel={() => setIsEditing(false)}
-        />
-      </Modal>
-
-      <Modal
-        isOpen={isAddingDeliverable}
-        onClose={() => setIsAddingDeliverable(false)}
-        title="Add Deliverable"
-      >
-        <DeliverableForm
-          onSubmit={(data) => {
-            onAddDeliverable(data);
-            setIsAddingDeliverable(false);
-          }}
-          onCancel={() => setIsAddingDeliverable(false)}
         />
       </Modal>
 

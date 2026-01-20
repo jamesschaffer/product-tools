@@ -1,16 +1,41 @@
 import { useState } from 'react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { useRoadmap } from '../../context';
 import { Button, Modal } from '../ui';
 import { GoalForm } from './GoalForm';
-import { GoalItem } from './GoalItem';
-import type { Goal, Initiative, Deliverable, DeliverableStatus } from '../../types';
+import { SortableGoalItem } from './SortableGoalItem';
+import type { Initiative, Deliverable, DeliverableStatus } from '../../types';
 
 export function EditView() {
   const { state, dispatch } = useRoadmap();
   const { roadmap } = state;
   const [isAddingGoal, setIsAddingGoal] = useState(false);
 
-  const sortedGoals = [...roadmap.goals].sort((a, b) => a.order - b.order);
+  const sortedGoals = [...roadmap.goals].sort((a, b) => a.priority - b.priority);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const getGoalInitiatives = (goalId: string) => {
     return roadmap.initiatives
@@ -28,7 +53,7 @@ export function EditView() {
     setIsAddingGoal(false);
   };
 
-  const handleUpdateGoal = (goal: Goal) => {
+  const handleUpdateGoal = (goal: typeof roadmap.goals[0]) => {
     dispatch({ type: 'UPDATE_GOAL', payload: goal });
   };
 
@@ -69,6 +94,21 @@ export function EditView() {
     dispatch({ type: 'DELETE_DELIVERABLE', payload: id });
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = sortedGoals.findIndex((g) => g.id === active.id);
+      const newIndex = sortedGoals.findIndex((g) => g.id === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        // Calculate new priority based on new position (1-indexed)
+        const newPriority = newIndex + 1;
+        dispatch({ type: 'SET_GOAL_PRIORITY', payload: { id: active.id as string, newPriority } });
+      }
+    }
+  };
+
   if (state.isLoading) {
     return (
       <div className="flex items-center justify-center p-12">
@@ -106,24 +146,35 @@ export function EditView() {
           </Button>
         </div>
       ) : (
-        <div className="space-y-4">
-          {sortedGoals.map((goal) => (
-            <GoalItem
-              key={goal.id}
-              goal={goal}
-              initiatives={getGoalInitiatives(goal.id)}
-              deliverables={getGoalDeliverables(goal.id)}
-              onUpdate={handleUpdateGoal}
-              onDelete={handleDeleteGoal}
-              onAddInitiative={(data) => handleAddInitiative(goal.id, data)}
-              onUpdateInitiative={handleUpdateInitiative}
-              onDeleteInitiative={handleDeleteInitiative}
-              onAddDeliverable={handleAddDeliverable}
-              onUpdateDeliverable={handleUpdateDeliverable}
-              onDeleteDeliverable={handleDeleteDeliverable}
-            />
-          ))}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={sortedGoals.map((g) => g.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-4">
+              {sortedGoals.map((goal) => (
+                <SortableGoalItem
+                  key={goal.id}
+                  goal={goal}
+                  initiatives={getGoalInitiatives(goal.id)}
+                  deliverables={getGoalDeliverables(goal.id)}
+                  onUpdate={handleUpdateGoal}
+                  onDelete={handleDeleteGoal}
+                  onAddInitiative={(data) => handleAddInitiative(goal.id, data)}
+                  onUpdateInitiative={handleUpdateInitiative}
+                  onDeleteInitiative={handleDeleteInitiative}
+                  onAddDeliverable={handleAddDeliverable}
+                  onUpdateDeliverable={handleUpdateDeliverable}
+                  onDeleteDeliverable={handleDeleteDeliverable}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       <Modal
