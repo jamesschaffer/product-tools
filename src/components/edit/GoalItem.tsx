@@ -42,7 +42,6 @@ export function GoalItem({
   onUpdateDeliverable,
   onDeleteDeliverable,
 }: GoalItemProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingInitiative, setIsAddingInitiative] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -71,51 +70,34 @@ export function GoalItem({
       <div className="group flex items-start justify-between p-4 bg-gray-50 border-b border-gray-200">
         <div className="flex items-start gap-3 min-w-0 flex-1">
           {dragHandleProps && (
-            <div className="flex flex-col items-center gap-0.5">
-              <button
-                {...dragHandleProps}
-                className="rounded p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-600 cursor-grab active:cursor-grabbing touch-none"
-                aria-label="Drag to reorder"
-              >
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 8h16M4 16h16"
-                  />
-                </svg>
-              </button>
-              <span className="flex h-5 w-5 items-center justify-center rounded bg-gray-200 text-xs font-semibold text-gray-600">
-                {goal.priority}
-              </span>
-            </div>
-          )}
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="mt-1 rounded p-0.5 text-gray-400 hover:bg-gray-200 hover:text-gray-600"
-            aria-label={isExpanded ? 'Collapse' : 'Expand'}
-          >
-            <svg
-              className={`h-5 w-5 transition-transform duration-200 ease-in-out ${isExpanded ? 'rotate-90' : 'rotate-0'}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+            <button
+              {...dragHandleProps}
+              className="mt-1 rounded p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-600 cursor-grab active:cursor-grabbing touch-none"
+              aria-label="Drag to reorder"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+              <svg
+                className="h-5 w-5"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="9" cy="5" r="1.5" />
+                <circle cx="15" cy="5" r="1.5" />
+                <circle cx="9" cy="12" r="1.5" />
+                <circle cx="15" cy="12" r="1.5" />
+                <circle cx="9" cy="19" r="1.5" />
+                <circle cx="15" cy="19" r="1.5" />
+              </svg>
+            </button>
+          )}
           <div className="min-w-0 flex-1">
-            <h3 className="text-base font-semibold text-gray-900">{goal.name}</h3>
+            <h3 className="text-base font-semibold text-gray-900 flex items-baseline gap-2">
+              <span className="inline-flex items-center justify-center h-5 w-5 rounded bg-gray-200 text-xs font-semibold text-gray-600 flex-shrink-0 -translate-y-px">{goal.priority}</span>
+              <span>{goal.name}</span>
+            </h3>
             {goal.description && (
               <p className="text-sm text-gray-600 mt-0.5">{goal.description}</p>
             )}
-            <p className="text-sm text-gray-500 mt-1">{goal.desiredOutcome}</p>
+            <p className="text-sm text-gray-500 mt-1">→ {goal.desiredOutcome}</p>
           </div>
         </div>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100">
@@ -138,13 +120,7 @@ export function GoalItem({
         </div>
       </div>
 
-      <div
-        className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${
-          isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-        }`}
-      >
-        <div className="overflow-hidden">
-          <div className="p-4 space-y-2">
+      <div className="p-4 space-y-2">
           {initiatives.length === 0 ? (
             <p className="text-sm text-gray-400 italic">No initiatives yet</p>
           ) : (
@@ -171,8 +147,6 @@ export function GoalItem({
           >
             + Add Initiative
           </Button>
-          </div>
-        </div>
       </div>
 
       <Modal
