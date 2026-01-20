@@ -5,7 +5,7 @@ interface BadgeProps {
 }
 
 const statusStyles: Record<DeliverableStatus, string> = {
-  shipped: 'bg-gray-900 text-white',
+  shipped: 'bg-green-600 text-white',
   'in-progress': 'bg-blue-600 text-white',
   planned: 'bg-white text-gray-700 border border-gray-300',
 };

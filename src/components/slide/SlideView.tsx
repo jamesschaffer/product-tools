@@ -33,13 +33,24 @@ export function SlideView() {
           </p>
         </div>
 
-        <div className="flex gap-3 overflow-x-auto pb-4 mb-8">
-          {nestedData.map((goal) => (
-            <GoalColumn key={goal.id} goal={goal} />
-          ))}
+        <div className="overflow-x-auto pb-4 mb-4">
+          <div className="flex gap-3 w-fit pr-6">
+            {nestedData.map((goal) => (
+              <GoalColumn key={goal.id} goal={goal} />
+            ))}
+          </div>
         </div>
 
-        <div className="border-t border-slate-200 pt-5">
+        <div className="flex items-center gap-2 text-slate-400 mb-4 pr-6">
+          <div className="flex-1 h-px bg-slate-200" />
+          <span className="text-xs uppercase tracking-wider">Priority</span>
+          <div className="flex-1 h-px bg-slate-200" />
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </div>
+
+        <div className="pt-2 pr-6">
           <Legend />
         </div>
       </div>

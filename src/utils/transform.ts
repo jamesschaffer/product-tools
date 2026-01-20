@@ -5,7 +5,7 @@ import type {
 } from '../types';
 
 export function buildNestedStructure(roadmap: Roadmap): GoalWithChildren[] {
-  const sortedGoals = [...roadmap.goals].sort((a, b) => a.order - b.order);
+  const sortedGoals = [...roadmap.goals].sort((a, b) => a.priority - b.priority);
 
   return sortedGoals.map((goal) => {
     const goalInitiatives = roadmap.initiatives

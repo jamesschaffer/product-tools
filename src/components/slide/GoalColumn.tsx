@@ -9,7 +9,10 @@ export function GoalColumn({ goal }: GoalColumnProps) {
   return (
     <div className="flex flex-col min-w-[280px] max-w-[320px]">
       <div className="bg-slate-800 text-white px-3 py-4 rounded-t-lg h-[96px]">
-        <h3 className="text-base font-semibold line-clamp-2">{goal.name}</h3>
+        <h3 className="text-base font-semibold line-clamp-2">
+          <span className="inline-flex items-center justify-center h-5 w-5 rounded bg-white/20 text-xs font-semibold mr-2 -translate-y-px">{goal.priority}</span>
+          {goal.name}
+        </h3>
         {goal.description && (
           <p className="text-sm opacity-85 leading-snug line-clamp-2">
             {goal.description}
