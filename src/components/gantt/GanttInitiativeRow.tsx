@@ -4,26 +4,25 @@ import { Tooltip } from '../ui';
 import type { GanttRowData } from '../../utils';
 import type { Deliverable } from '../../types';
 
-interface GanttRowProps {
+interface GanttInitiativeRowProps {
   row: GanttRowData;
   viewStart: Date;
   viewMonths: number;
   onUpdateDeliverable: (deliverable: Deliverable) => void;
+  isLast: boolean;
 }
 
-export function GanttRow({
+export function GanttInitiativeRow({
   row,
   viewStart,
   viewMonths,
   onUpdateDeliverable,
-}: GanttRowProps) {
+  isLast,
+}: GanttInitiativeRowProps) {
   const {
-    goal,
     initiative,
     scheduledDeliverables,
     unscheduledDeliverables,
-    isFirstInitiativeInGoal,
-    isLastInitiativeInGoal,
     initiativeCountInGoal,
     rowHeight,
   } = row;
@@ -42,53 +41,25 @@ export function GanttRow({
   };
 
   const isEmptyGoal = initiativeCountInGoal === 0;
-
-  const goalBorderClass = isLastInitiativeInGoal ? 'border-b border-gray-200' : '';
-  const rowBorderClass = 'border-b border-gray-200';
+  const rowBorderClass = isLast ? '' : 'border-b border-gray-200';
 
   return (
     <div>
       <div className="flex">
-        {isFirstInitiativeInGoal && (
-          <div
-            className={`w-40 shrink-0 border-r border-gray-200 bg-gray-50 px-3 sticky left-0 z-10 flex items-center ${goalBorderClass}`}
-          >
-            <Tooltip
-              content={
-                <div>
-                  <div className="text-xs font-medium text-gray-900 mb-1">{goal.name}</div>
-                  {goal.description && (
-                    <div className="text-xs text-gray-500 mb-2">{goal.description}</div>
-                  )}
-                  <div className="text-xs text-teal-600 font-medium">
-                    → {goal.desiredOutcome}
-                  </div>
-                </div>
-              }
-            >
-              <div className="text-sm font-medium text-gray-900 cursor-pointer hover:text-teal-600 transition-colors">
-                {goal.name}
-              </div>
-            </Tooltip>
-          </div>
-        )}
-        {!isFirstInitiativeInGoal && (
-          <div className={`w-40 shrink-0 border-r border-gray-200 bg-gray-50 sticky left-0 z-10 flex items-center ${goalBorderClass}`} />
-        )}
-
+        {/* Initiative column */}
         <div className={`w-48 shrink-0 border-r border-gray-200 bg-white px-3 sticky left-40 z-10 flex items-center ${rowBorderClass}`}>
           {!isEmptyGoal && (
             <Tooltip
               content={
                 <div>
-                  <div className="text-xs font-medium text-gray-900 mb-1">{initiative.name}</div>
+                  <div className="text-xs text-gray-500 mb-1">Ideal Outcome</div>
                   <div className="text-xs text-teal-600 font-medium">
                     → {initiative.idealOutcome}
                   </div>
                 </div>
               }
             >
-              <div className="text-sm font-medium text-gray-800 cursor-pointer hover:text-teal-600 transition-colors">
+              <div className="text-xs font-medium text-gray-600 cursor-pointer hover:text-teal-600 transition-colors">
                 {initiative.name}
               </div>
             </Tooltip>
@@ -98,10 +69,12 @@ export function GanttRow({
           )}
         </div>
 
+        {/* Timeline */}
         <div
           className={`flex-1 relative bg-white overflow-hidden ${rowBorderClass}`}
           style={{ height: `${timelineHeight}px` }}
         >
+          {/* Grid lines */}
           <div className="absolute inset-0 flex">
             {Array.from({ length: viewMonths }).map((_, i) => (
               <div
@@ -112,6 +85,7 @@ export function GanttRow({
             ))}
           </div>
 
+          {/* Deliverable bars */}
           {scheduledDeliverables.map((deliverable) => (
             <DeliverableBar
               key={deliverable.id}
@@ -125,9 +99,9 @@ export function GanttRow({
         </div>
       </div>
 
+      {/* Unscheduled deliverables */}
       {unscheduledDeliverables.length > 0 && (
         <div className="flex">
-          <div className="w-40 shrink-0 border-r border-gray-200 bg-gray-50 sticky left-0 z-10" />
           <div className="w-48 shrink-0 border-r border-gray-200 bg-white sticky left-40 z-10" />
           <div className="flex-1">
             <UnscheduledRow deliverables={unscheduledDeliverables} />

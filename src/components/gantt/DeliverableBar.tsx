@@ -106,7 +106,7 @@ export function DeliverableBar({
 
   const barHeight = 24;
   const barGap = 4;
-  const topOffset = stackIndex * (barHeight + barGap) + 4;
+  const topOffset = stackIndex * (barHeight + barGap) + 7;
 
   return (
     <div

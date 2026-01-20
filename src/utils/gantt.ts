@@ -38,7 +38,18 @@ export interface GanttRowData {
   unscheduledDeliverables: Deliverable[];
   maxStackIndex: number;
   isFirstInitiativeInGoal: boolean;
+  isLastInitiativeInGoal: boolean;
   initiativeCountInGoal: number;
+  rowHeight: number;
+  goalTotalHeight: number;
+  rowOffsetInGoal: number;
+}
+
+function calculateRowHeight(maxStackIndex: number): number {
+  const barHeight = 24;
+  const barGap = 4;
+  const minTimelineHeight = 40;
+  return Math.max(minTimelineHeight, (maxStackIndex + 1) * (barHeight + barGap) + 12);
 }
 
 export function buildGanttRows(roadmap: Roadmap): GanttRowData[] {
@@ -51,7 +62,16 @@ export function buildGanttRows(roadmap: Roadmap): GanttRowData[] {
       .filter((i) => i.goalId === goal.id)
       .sort((a, b) => a.order - b.order);
 
-    goalInitiatives.forEach((initiative, index) => {
+    // First pass: calculate row heights for this goal
+    const goalRows: Array<{
+      initiative: Initiative;
+      stackedDeliverables: StackedDeliverable[];
+      unscheduledDeliverables: Deliverable[];
+      maxStackIndex: number;
+      rowHeight: number;
+    }> = [];
+
+    for (const initiative of goalInitiatives) {
       const initiativeDeliverables = roadmap.deliverables
         .filter((d) => d.initiativeId === initiative.id)
         .sort((a, b) => a.order - b.order);
@@ -65,18 +85,39 @@ export function buildGanttRows(roadmap: Roadmap): GanttRowData[] {
         -1
       );
 
-      rows.push({
-        goal,
+      goalRows.push({
         initiative,
-        scheduledDeliverables: stackedDeliverables,
+        stackedDeliverables,
         unscheduledDeliverables: unscheduled,
         maxStackIndex,
-        isFirstInitiativeInGoal: index === 0,
-        initiativeCountInGoal: goalInitiatives.length,
+        rowHeight: calculateRowHeight(maxStackIndex),
       });
+    }
+
+    // Calculate total height for the goal
+    const goalTotalHeight = goalRows.reduce((sum, r) => sum + r.rowHeight, 0);
+
+    // Second pass: create row data with offsets
+    let rowOffsetInGoal = 0;
+    goalRows.forEach((rowData, index) => {
+      rows.push({
+        goal,
+        initiative: rowData.initiative,
+        scheduledDeliverables: rowData.stackedDeliverables,
+        unscheduledDeliverables: rowData.unscheduledDeliverables,
+        maxStackIndex: rowData.maxStackIndex,
+        isFirstInitiativeInGoal: index === 0,
+        isLastInitiativeInGoal: index === goalRows.length - 1,
+        initiativeCountInGoal: goalRows.length,
+        rowHeight: rowData.rowHeight,
+        goalTotalHeight,
+        rowOffsetInGoal,
+      });
+      rowOffsetInGoal += rowData.rowHeight;
     });
 
     if (goalInitiatives.length === 0) {
+      const rowHeight = calculateRowHeight(-1);
       rows.push({
         goal,
         initiative: {
@@ -90,7 +131,11 @@ export function buildGanttRows(roadmap: Roadmap): GanttRowData[] {
         unscheduledDeliverables: [],
         maxStackIndex: -1,
         isFirstInitiativeInGoal: true,
+        isLastInitiativeInGoal: true,
         initiativeCountInGoal: 0,
+        rowHeight,
+        goalTotalHeight: rowHeight,
+        rowOffsetInGoal: 0,
       });
     }
   }

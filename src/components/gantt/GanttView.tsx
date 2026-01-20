@@ -1,19 +1,56 @@
 import { useMemo } from 'react';
 import { useRoadmap } from '../../context';
-import { buildGanttRows } from '../../utils';
+import { buildGanttRows, getQuarterStart } from '../../utils';
 import { GanttHeader } from './GanttHeader';
-import { GanttRow } from './GanttRow';
+import { GanttGoalSection } from './GanttGoalSection';
 import type { Deliverable } from '../../types';
 
 export function GanttView() {
   const { state, dispatch } = useRoadmap();
   const { roadmap } = state;
 
-  const viewStart = useMemo(() => {
-    return new Date(roadmap.settings.viewStartDate);
-  }, [roadmap.settings.viewStartDate]);
+  const { viewStart, viewMonths } = useMemo(() => {
+    const now = new Date();
+    const quarterStart = getQuarterStart(now);
 
-  const viewMonths = 12;
+    // Find the earliest and latest dates from deliverables
+    let earliest: Date | null = null;
+    let latest: Date | null = null;
+
+    for (const deliverable of roadmap.deliverables) {
+      if (deliverable.startDate) {
+        const start = new Date(deliverable.startDate);
+        if (!earliest || start < earliest) earliest = start;
+      }
+      if (deliverable.endDate) {
+        const end = new Date(deliverable.endDate);
+        if (!latest || end > latest) latest = end;
+      }
+    }
+
+    // Default view start to current quarter
+    let viewStart = quarterStart;
+
+    // If there are deliverables earlier than current quarter, extend back
+    if (earliest) {
+      const earliestQuarter = getQuarterStart(earliest);
+      if (earliestQuarter < viewStart) {
+        viewStart = earliestQuarter;
+      }
+    }
+
+    // Calculate months needed (minimum 12, extend to cover all deliverables + buffer)
+    let viewMonths = 12;
+    if (latest) {
+      const monthsToLatest = Math.ceil(
+        (latest.getTime() - viewStart.getTime()) / (1000 * 60 * 60 * 24 * 30)
+      );
+      // Round up to nearest quarter (3 months) and add buffer
+      viewMonths = Math.max(12, Math.ceil((monthsToLatest + 3) / 3) * 3);
+    }
+
+    return { viewStart, viewMonths };
+  }, [roadmap.deliverables]);
 
   const rows = useMemo(() => {
     return buildGanttRows(roadmap);
@@ -45,20 +82,32 @@ export function GanttView() {
         </p>
       </div>
 
-      <div className="flex-1 overflow-auto">
-        <div className="min-w-[1000px]">
+      <div className="flex-1 overflow-x-auto overflow-y-auto">
+        <div style={{ minWidth: `${352 + viewMonths * 80}px` }}>
           <GanttHeader viewStart={viewStart} viewMonths={viewMonths} />
 
           <div>
-            {rows.map((row, index) => (
-              <GanttRow
-                key={`${row.goal.id}-${row.initiative.id}-${index}`}
-                row={row}
-                viewStart={viewStart}
-                viewMonths={viewMonths}
-                onUpdateDeliverable={handleUpdateDeliverable}
-              />
-            ))}
+            {(() => {
+              // Group rows by goal
+              const goalGroups: Record<string, typeof rows> = {};
+              for (const row of rows) {
+                if (!goalGroups[row.goal.id]) {
+                  goalGroups[row.goal.id] = [];
+                }
+                goalGroups[row.goal.id].push(row);
+              }
+
+              return Object.values(goalGroups).map((goalRows) => (
+                <GanttGoalSection
+                  key={goalRows[0].goal.id}
+                  goal={goalRows[0].goal}
+                  rows={goalRows}
+                  viewStart={viewStart}
+                  viewMonths={viewMonths}
+                  onUpdateDeliverable={handleUpdateDeliverable}
+                />
+              ));
+            })()}
           </div>
         </div>
       </div>
