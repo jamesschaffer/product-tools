@@ -33,20 +33,6 @@ export function DeliverableBar({
   const [isDragging, setIsDragging] = useState<'left' | 'right' | null>(null);
   const [tempDates, setTempDates] = useState<{ start: string; end: string } | null>(null);
 
-  const startDate = tempDates?.start || deliverable.startDate!;
-  const endDate = tempDates?.end || deliverable.endDate!;
-
-  const rawLeft = dateToPercent(new Date(startDate), viewStart, viewMonths);
-  const rawRight = dateToPercent(new Date(endDate), viewStart, viewMonths);
-
-  const left = Math.max(0, rawLeft);
-  const right = Math.min(100, rawRight);
-  const width = right - left;
-
-  if (rawRight <= 0 || rawLeft >= 100 || width <= 0) {
-    return null;
-  }
-
   const handleMouseDown = useCallback(
     (side: 'left' | 'right') => (e: React.MouseEvent) => {
       e.preventDefault();
@@ -103,6 +89,20 @@ export function DeliverableBar({
       };
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
+
+  const startDate = tempDates?.start || deliverable.startDate!;
+  const endDate = tempDates?.end || deliverable.endDate!;
+
+  const rawLeft = dateToPercent(new Date(startDate), viewStart, viewMonths);
+  const rawRight = dateToPercent(new Date(endDate), viewStart, viewMonths);
+
+  const left = Math.max(0, rawLeft);
+  const right = Math.min(100, rawRight);
+  const width = right - left;
+
+  if (rawRight <= 0 || rawLeft >= 100 || width <= 0) {
+    return null;
+  }
 
   const barHeight = 24;
   const barGap = 4;

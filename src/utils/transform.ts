@@ -33,9 +33,23 @@ export function buildNestedStructure(roadmap: Roadmap): GoalWithChildren[] {
 }
 
 export function getDeliverablesByStatus(roadmap: Roadmap) {
-  const shipped = roadmap.deliverables.filter((d) => d.status === 'shipped').length;
-  const inProgress = roadmap.deliverables.filter((d) => d.status === 'in-progress').length;
-  const planned = roadmap.deliverables.filter((d) => d.status === 'planned').length;
+  let shipped = 0;
+  let inProgress = 0;
+  let planned = 0;
+
+  for (const deliverable of roadmap.deliverables) {
+    switch (deliverable.status) {
+      case 'shipped':
+        shipped++;
+        break;
+      case 'in-progress':
+        inProgress++;
+        break;
+      case 'planned':
+        planned++;
+        break;
+    }
+  }
 
   return { shipped, inProgress, planned, total: roadmap.deliverables.length };
 }

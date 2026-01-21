@@ -23,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         type: user.type,
       },
     });
-  } catch (error) {
+  } catch {
     return res.status(401).json({
       valid: false,
       error: 'Invalid token or insufficient permissions',
