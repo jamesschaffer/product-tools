@@ -12,29 +12,49 @@ Data is stored in Notion databases, allowing ICs to update directly while this a
 
 ## Prerequisites
 
-1. A Notion integration token ([create one here](https://www.notion.so/my-integrations))
-2. Three Notion databases: Goals, Initiatives, Deliverables
-3. Node.js 18+
+1. Node.js 18+
+2. A Notion account with integration access
 
-## Quick Start
+## Quick Start (New Installation)
 
 ```bash
 # Install dependencies
 npm install
 
-# Copy environment template
-cp .env.example .env
-
-# Edit .env with your Notion credentials:
-# NOTION_TOKEN=your_notion_integration_token
-# GOALS_DB_ID=your_goals_database_id
-# INITIATIVES_DB_ID=your_initiatives_database_id
-# DELIVERABLES_DB_ID=your_deliverables_database_id
-# API_KEY=your_shared_access_key
-
-# Start development server (runs both frontend and API)
-npm run dev
+# Run the setup script (creates Notion databases automatically)
+npm run setup
 ```
+
+The setup script will:
+1. Prompt for your Notion integration token
+2. Prompt for a parent page ID (where databases will be created)
+3. Automatically create Goals, Initiatives, and Deliverables databases
+4. Generate your `.env` file with all required credentials
+
+Then start the servers:
+```bash
+# Terminal 1: Start frontend
+npm run dev
+
+# Terminal 2: Start API
+npm run dev:api
+```
+
+Open http://localhost:5173
+
+## Manual Setup (Alternative)
+
+If you prefer to create databases manually:
+
+```bash
+cp .env.example .env
+# Edit .env with your credentials
+```
+
+Required Notion databases:
+- **Goals**: Name, Description, Desired Outcome, Priority, Order
+- **Initiatives**: Name, Ideal Outcome, Goal (relation), Order
+- **Deliverables**: Name, Description, Status (select), Start Date, End Date, Initiative (relation), Order
 
 ## Features
 
@@ -96,6 +116,47 @@ All endpoints require authentication (API key cookie).
 | `/api/notion/initiatives/[id]` | PATCH, DELETE | Update/delete initiative |
 | `/api/notion/deliverables` | GET, POST | List/create deliverables |
 | `/api/notion/deliverables/[id]` | PATCH, DELETE | Update/delete deliverable |
+
+## Deployment (Vercel)
+
+### One-Click Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/jamesschaffer/product-tools)
+
+### Manual Deployment
+
+1. **Push to GitHub**
+   ```bash
+   git remote add origin https://github.com/your-org/product-tools.git
+   git push -u origin main
+   ```
+
+2. **Connect to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Import your GitHub repository
+   - Configure environment variables (see below)
+
+3. **Set Environment Variables** in Vercel Dashboard:
+   ```
+   NOTION_TOKEN=secret_xxx
+   GOALS_DB_ID=abc123...
+   INITIATIVES_DB_ID=def456...
+   DELIVERABLES_DB_ID=ghi789...
+   API_KEY=your-team-access-key
+   ```
+
+4. **Add Custom Domain** (optional)
+   - Settings → Domains → Add `roadmap.yourcompany.com`
+   - Configure DNS: CNAME record pointing to `cname.vercel-dns.com`
+
+### Multiple Deployments
+
+Each deployment needs its own:
+- Notion integration + databases
+- Environment variables in Vercel
+- (Optional) Custom subdomain
+
+Run `npm run setup` for each new Notion workspace to generate the database IDs.
 
 ## Documentation
 
