@@ -18,7 +18,7 @@ function AppRoutes() {
   const location = useLocation();
 
   // Show loading while checking auth and config
-  if (authLoading || (isAuthenticated && configLoading)) {
+  if (authLoading || configLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
