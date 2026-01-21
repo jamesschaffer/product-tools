@@ -69,7 +69,7 @@ Goal
 
 ## Current State
 
-The toolkit is fully functional with all six development phases complete. All three views work from a unified data model with localStorage persistence.
+The toolkit is production-ready with Notion backend integration and proper security measures.
 
 | Component | Description | Status |
 |-----------|-------------|--------|
@@ -78,15 +78,19 @@ The toolkit is fully functional with all six development phases complete. All th
 | Slide View | Presentation-ready status view | Complete |
 | Settings | Title, font, color theme, view start date | Complete |
 | Export | Print/PDF export, JSON import/export | Complete |
-| Persistence | localStorage auto-save | Complete |
-| Empty States | Helpful prompts when no data exists | Complete |
-| Validation | Required fields, date range validation | Complete |
-| Keyboard Shortcuts | Escape to close modals | Complete |
+| Notion Backend | API integration with Notion databases | Complete |
+| Authentication | API key auth with HTTP-only cookie sessions | Complete |
+| Optimistic Updates | TanStack Query with automatic rollback | Complete |
+| API Validation | Zod schema validation on all endpoints | Complete |
+| Error Boundaries | Graceful error handling with recovery | Complete |
 
-### Recent Updates
-- Gantt chart layout fix: Deliverable bars now properly constrain to the timeline area (no bleeding into label columns)
-- Settings modal: Now syncs form values with current data when opened
-- UI polish: Default title changed to "Planning Hub", slide view padding adjusted, cleaner presentation
+### Recent Updates (January 2025)
+- **Notion Integration**: Replaced localStorage with Notion databases as backend
+- **Server-side Tokens**: Moved sensitive credentials to environment variables
+- **API Authentication**: Added API key authentication with HTTP-only cookies
+- **TanStack Query**: Proper data fetching with caching and optimistic updates
+- **Zod Validation**: Runtime type checking on all API endpoints
+- **Error Boundaries**: React error boundaries for graceful failure handling
 
 ### Legacy Files (Reference Only)
 
@@ -97,17 +101,33 @@ The original standalone files are preserved in the `legacy/` folder for referenc
 ## Technical Details
 
 ### Architecture
-- React 19.2 + Vite 7.2 + TypeScript 5.9 (strict mode)
-- React Router 7.12 for view navigation
-- React Context + useReducer for state management
-- Tailwind CSS 4.1 for styling
-- LocalStorage for data persistence (MVP)
-- Future: Supabase integration for cloud persistence
+```
+┌─────────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│  React App (Vite)   │────▶│ Serverless API   │────▶│  Notion API     │
+│  - Views            │     │ /api/*           │     │  - Goals DB     │
+│  - TanStack Query   │◀────│ - Auth           │◀────│  - Initiatives  │
+│  - React Context    │     │ - Validation     │     │  - Deliverables │
+└─────────────────────┘     └──────────────────┘     └─────────────────┘
+```
+
+- React 19 + Vite 7 + TypeScript 5 (strict mode)
+- React Router for view navigation
+- TanStack Query for data fetching and caching
+- React Context + useReducer for local state
+- Zod for runtime type validation
+- Tailwind CSS for styling
+- Notion as database backend
 
 ### Data Persistence
-- Automatic save on any change
-- Data loads automatically on page refresh
-- LocalStorage key: `product-toolkit-data`
+- Data stored in three Notion databases (Goals, Initiatives, Deliverables)
+- TanStack Query handles caching with background refetch on window focus
+- Optimistic updates for instant UI feedback
+- Automatic rollback on API errors
+
+### Authentication
+- Simple API key authentication
+- HTTP-only cookie for session (24h expiry)
+- All API endpoints require valid session
 
 ## Features
 
@@ -152,10 +172,11 @@ The original standalone files are preserved in the `legacy/` folder for referenc
 ## Long-term Vision
 
 ### Portability & Integrations
-The tool is designed to be portable across roles and organizations. While MVP uses local storage, the architecture should support:
-- **Notion integration**: Sync with Notion databases
-- **Other backends**: Flexibility to connect to different systems as needs change
-- **Export/Import**: Data portability via JSON export/import
+The tool is designed to be portable across roles and organizations:
+- **Notion integration**: ✅ Complete - Data synced to Notion databases
+- **Other backends**: Architecture allows swapping backends if needed
+- **Export/Import**: JSON export/import for data portability
+- **Per-user auth**: Future enhancement for larger team deployments
 
 ## Documentation
 
@@ -171,29 +192,48 @@ The tool is designed to be portable across roles and organizations. While MVP us
 
 ```
 product-tools/
+├── api/                    # Serverless API endpoints
+│   ├── _lib/               # Shared API utilities
+│   │   ├── auth.ts         # Authentication middleware
+│   │   ├── notion.ts       # Notion client setup
+│   │   └── validation.ts   # Zod validation schemas
+│   ├── auth/               # Auth endpoints
+│   │   ├── login.ts
+│   │   ├── logout.ts
+│   │   └── status.ts
+│   └── notion/             # Notion CRUD endpoints
+│       ├── goals/
+│       ├── initiatives/
+│       └── deliverables/
 ├── src/
 │   ├── components/
-│   │   ├── edit/           # Edit view components (GoalItem, InitiativeItem, DeliverableItem, forms)
-│   │   ├── gantt/          # Gantt view components (GanttView, GanttRow, DeliverableBar, etc.)
-│   │   ├── slide/          # Slide view components (SlideView, GoalColumn, InitiativeCard, etc.)
+│   │   ├── auth/           # Login page
+│   │   ├── edit/           # Edit view components
+│   │   ├── error/          # Error boundary
+│   │   ├── gantt/          # Gantt view components
+│   │   ├── slide/          # Slide view components
 │   │   ├── settings/       # Settings modal
 │   │   ├── export/         # Export modal
 │   │   ├── layout/         # Toolbar, ViewSwitcher
-│   │   └── ui/             # Shared UI components (Button, Input, Modal, etc.)
-│   ├── context/            # RoadmapContext with useReducer state management
-│   ├── types/              # TypeScript interfaces (Roadmap, Goal, Initiative, Deliverable)
-│   ├── utils/              # Utilities (dates, storage, gantt calculations, transforms)
-│   ├── data/               # Sample roadmap data
+│   │   └── ui/             # Shared UI components
+│   ├── context/            # React Context (syncs with TanStack Query)
+│   │   ├── RoadmapContext.tsx
+│   │   └── roadmapReducer.ts
+│   ├── hooks/              # Custom hooks
+│   │   ├── useAuth.ts
+│   │   ├── useGoalsQuery.ts
+│   │   ├── useInitiativesQuery.ts
+│   │   └── useDeliverablesQuery.ts
+│   ├── lib/                # Core utilities
+│   │   ├── api.ts          # API client functions
+│   │   └── queryClient.ts  # TanStack Query setup
+│   ├── types/              # TypeScript types + Zod schemas
+│   ├── utils/              # Utilities
 │   ├── App.tsx             # Main app with routing
 │   └── main.tsx            # Entry point
-├── legacy/                 # Reference implementations (preserved)
-│   ├── gantt.html
-│   └── executive-vision-diagram-standalone.html
-├── PROJECT_CONTEXT.md
-├── PRD.md
-├── ARCHITECTURE.md
-├── DECISIONS.md
-└── IMPLEMENTATION_PLAN.md
+├── .env.example            # Environment template
+├── api-server.js           # Local dev server for API
+└── [documentation files]
 ```
 
 ## Development

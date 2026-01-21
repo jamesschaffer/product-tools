@@ -1,51 +1,47 @@
-export type DeliverableStatus = 'shipped' | 'in-progress' | 'planned';
+// Re-export types and schemas from schemas.ts
+export {
+  // Schemas
+  DeliverableStatusSchema,
+  DeliverableSchema,
+  InitiativeSchema,
+  GoalSchema,
+  ColorThemeSchema,
+  RoadmapSettingsSchema,
+  RoadmapSchema,
+  CreateGoalSchema,
+  CreateInitiativeSchema,
+  CreateDeliverableSchema,
+  UpdateGoalSchema,
+  UpdateInitiativeSchema,
+  UpdateDeliverableSchema,
+  GoalApiCreateSchema,
+  GoalApiUpdateSchema,
+  InitiativeApiCreateSchema,
+  InitiativeApiUpdateSchema,
+  DeliverableApiCreateSchema,
+  DeliverableApiUpdateSchema,
+  // Types
+  type DeliverableStatus,
+  type Deliverable,
+  type Initiative,
+  type Goal,
+  type ColorTheme,
+  type RoadmapSettings,
+  type Roadmap,
+  type CreateGoal,
+  type CreateInitiative,
+  type CreateDeliverable,
+  type GoalApiCreate,
+  type GoalApiUpdate,
+  type InitiativeApiCreate,
+  type InitiativeApiUpdate,
+  type DeliverableApiCreate,
+  type DeliverableApiUpdate,
+} from './schemas';
 
-export interface Deliverable {
-  id: string;
-  initiativeId: string;
-  name: string;
-  description?: string;
-  status: DeliverableStatus;
-  startDate?: string;
-  endDate?: string;
-  order: number;
-}
+import type { Goal, Initiative, Deliverable } from './schemas';
 
-export interface Initiative {
-  id: string;
-  goalId: string;
-  name: string;
-  idealOutcome: string;
-  order: number;
-}
-
-export interface Goal {
-  id: string;
-  name: string;
-  description?: string;
-  desiredOutcome: string;
-  order: number;
-  priority: number;
-}
-
-export type ColorTheme = 'blue' | 'green' | 'orange' | 'purple' | 'red' | 'teal' | 'slate';
-
-export interface RoadmapSettings {
-  viewStartDate: string;
-  colorTheme: ColorTheme;
-  fontFamily: string;
-}
-
-export interface Roadmap {
-  id: string;
-  title: string;
-  goals: Goal[];
-  initiatives: Initiative[];
-  deliverables: Deliverable[];
-  settings: RoadmapSettings;
-  createdAt: string;
-  updatedAt: string;
-}
+// Composite types for UI rendering
 
 export interface GoalWithChildren extends Goal {
   initiatives: InitiativeWithChildren[];

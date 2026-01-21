@@ -360,9 +360,180 @@ Use browser print dialog via `window.print()` with print-specific CSS.
 
 ---
 
+## ADR-014: Notion Integration as Backend
+
+**Date:** 2025-01-21
+
+**Context:**
+The original localStorage approach limited the app to single-device use. Team members (ICs) needed to update roadmap data from their own workflows.
+
+**Decision:**
+Replace localStorage with Notion as the backend. Three Notion databases (Goals, Initiatives, Deliverables) serve as the source of truth.
+
+**Architecture:**
+```
+React App → Serverless API (/api/*) → Notion API
+```
+
+**Rationale:**
+- ICs can update directly in Notion using familiar tools
+- This app becomes a specialized visualization layer
+- No custom database infrastructure needed
+- Data is portable and accessible outside the app
+
+**Consequences:**
+- Requires Notion integration token and database IDs
+- API layer handles Notion ↔ app data transformation
+- Relational data (Goal→Initiative→Deliverable) via Notion relations
+
+---
+
+## ADR-015: Server-Side Token Storage
+
+**Date:** 2025-01-21
+
+**Context:**
+Initially, Notion tokens were stored in localStorage and passed via request headers. This exposed sensitive credentials to client-side code and browser storage.
+
+**Decision:**
+Store Notion token and database IDs as server-side environment variables only.
+
+**Implementation:**
+- `.env` file with `NOTION_TOKEN`, `GOALS_DB_ID`, `INITIATIVES_DB_ID`, `DELIVERABLES_DB_ID`
+- API endpoints read from `process.env`, never from request headers
+- Client never sees or stores the Notion token
+
+**Rationale:**
+- Follows security best practices
+- Tokens never exposed in browser DevTools or localStorage
+- Enables deployment to Vercel with secret management
+
+**Consequences:**
+- Setup requires server-side configuration (env vars)
+- Client-side setup wizard replaced with env var instructions
+- More secure but less self-service
+
+---
+
+## ADR-016: API Key Authentication
+
+**Date:** 2025-01-21
+
+**Context:**
+With server-side tokens, the API still needed access control. Options considered:
+1. Session-based auth with user accounts
+2. Simple API key
+3. OAuth integration
+
+**Decision:**
+Use simple API key authentication with HTTP-only cookie storage.
+
+**Implementation:**
+- `API_KEY` environment variable
+- Login endpoint validates key and sets HTTP-only cookie
+- All protected endpoints check for valid cookie
+- No user accounts needed for team use
+
+**Rationale:**
+- Appropriate for small management team use case
+- Minimal complexity vs. full auth system
+- HTTP-only cookie prevents XSS token theft
+- Can upgrade to proper auth later if needed
+
+**Consequences:**
+- Single shared API key for team
+- No per-user permissions
+- Session expires after 24 hours
+
+---
+
+## ADR-017: TanStack Query for Data Fetching
+
+**Date:** 2025-01-21
+
+**Context:**
+Moving to API-based data fetching required handling loading states, caching, background refetches, and optimistic updates.
+
+**Decision:**
+Adopt TanStack Query (React Query) for data fetching and cache management.
+
+**Implementation:**
+- Query hooks for each entity type (useGoalsQuery, useInitiativesQuery, useDeliverablesQuery)
+- Mutation hooks with optimistic updates for create/update/delete
+- Automatic background refetching and cache invalidation
+- Context syncs query data to existing reducer for compatibility
+
+**Rationale:**
+- Industry-standard solution for React data fetching
+- Built-in optimistic updates with rollback on error
+- Automatic cache management reduces complexity
+- Maintains compatibility with existing context-based components
+
+**Consequences:**
+- Additional dependency (~12KB gzipped)
+- Components still use existing hooks (useRoadmap)
+- Queries refetch on window focus for freshness
+
+---
+
+## ADR-018: Zod Schema Validation
+
+**Date:** 2025-01-21
+
+**Context:**
+With API endpoints accepting user input, runtime validation was needed to prevent malformed data from reaching Notion.
+
+**Decision:**
+Use Zod for both frontend type definitions and API request validation.
+
+**Implementation:**
+- Shared schemas in `src/types/schemas.ts` for frontend
+- Duplicate schemas in `api/_lib/validation.ts` for API
+- `validateRequest()` helper returns typed data or sends 400 response
+- Validation error responses include field-level details
+
+**Rationale:**
+- Single source of truth for data shapes
+- Runtime validation catches invalid API requests
+- TypeScript types derived from schemas stay in sync
+- Clear error messages for debugging
+
+**Consequences:**
+- ~50KB additional bundle size (frontend Zod)
+- All POST/PATCH requests validated before Notion calls
+- Validation errors return structured error details
+
+---
+
+## ADR-019: React Error Boundaries
+
+**Date:** 2025-01-21
+
+**Context:**
+Unhandled errors in components could crash the entire app, leaving users with a blank screen.
+
+**Decision:**
+Wrap main content in React Error Boundary that catches errors and provides recovery options.
+
+**Implementation:**
+- ErrorBoundary component catches render errors
+- Displays error message with "Try Again" and "Reload Page" options
+- Wraps Routes inside RoadmapProvider
+
+**Rationale:**
+- Graceful degradation instead of white screen
+- Users can attempt recovery without manual refresh
+- Error details visible for debugging
+
+**Consequences:**
+- Errors are contained to the error boundary scope
+- User experience maintained even when errors occur
+
+---
+
 ## Future Decisions (Pending)
 
 - **PNG export implementation**: Library choice (html2canvas vs dom-to-image)
-- **Notion integration architecture**: Sync strategy, conflict resolution
 - **Multi-roadmap support**: Single vs. multiple roadmaps per user
 - **Sharing/collaboration model**: Read-only links vs. collaborative editing
+- **Per-user authentication**: Move from shared API key to user accounts

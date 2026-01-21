@@ -1,17 +1,20 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { useRoadmap } from '../../context';
-import { buildGanttRows, getQuarterStart } from '../../utils';
+import { buildGanttRows, getQuarterStart, dateToPercent } from '../../utils';
 import { GanttHeader } from './GanttHeader';
 import { GanttGoalSection } from './GanttGoalSection';
+import { ExportModal } from '../export';
 import type { Deliverable } from '../../types';
 
 export function GanttView() {
-  const { state, dispatch } = useRoadmap();
+  const { state, updateDeliverable } = useRoadmap();
   const { roadmap } = state;
+  const [showExport, setShowExport] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const { viewStart, viewMonths } = useMemo(() => {
+  const { viewStart, viewMonths, currentQuarterPercent } = useMemo(() => {
     const now = new Date();
-    const quarterStart = getQuarterStart(now);
+    const currentQuarter = getQuarterStart(now);
 
     // Find the earliest and latest dates from deliverables
     let earliest: Date | null = null;
@@ -29,7 +32,7 @@ export function GanttView() {
     }
 
     // Default view start to current quarter
-    let viewStart = quarterStart;
+    let viewStart = currentQuarter;
 
     // If there are deliverables earlier than current quarter, extend back
     if (earliest) {
@@ -45,19 +48,31 @@ export function GanttView() {
       const monthsToLatest = Math.ceil(
         (latest.getTime() - viewStart.getTime()) / (1000 * 60 * 60 * 24 * 30)
       );
-      // Round up to nearest quarter (3 months) and add buffer
       viewMonths = Math.max(12, Math.ceil((monthsToLatest + 3) / 3) * 3);
     }
 
-    return { viewStart, viewMonths };
+    // Calculate where current quarter is as a percentage of the view
+    const currentQuarterPercent = dateToPercent(currentQuarter, viewStart, viewMonths);
+
+    return { viewStart, viewMonths, currentQuarterPercent };
   }, [roadmap.deliverables]);
+
+  // Scroll to current quarter on mount
+  useEffect(() => {
+    if (scrollContainerRef.current && currentQuarterPercent > 0) {
+      const container = scrollContainerRef.current;
+      const totalWidth = 352 + viewMonths * 80;
+      const scrollPosition = (currentQuarterPercent / 100) * totalWidth - 100;
+      container.scrollLeft = Math.max(0, scrollPosition);
+    }
+  }, [currentQuarterPercent, viewMonths]);
 
   const rows = useMemo(() => {
     return buildGanttRows(roadmap);
   }, [roadmap]);
 
   const handleUpdateDeliverable = (deliverable: Deliverable) => {
-    dispatch({ type: 'UPDATE_DELIVERABLE', payload: deliverable });
+    updateDeliverable(deliverable);
   };
 
   if (roadmap.goals.length === 0) {
@@ -75,14 +90,23 @@ export function GanttView() {
 
   return (
     <div className="h-[calc(100vh-73px)] flex flex-col">
-      <div className="p-6 border-b border-gray-200 bg-white">
-        <h2 className="text-lg font-medium text-gray-900">Timeline</h2>
-        <p className="text-sm text-gray-500">
-          Drag deliverable edges to adjust dates
-        </p>
+      <div className="p-6 border-b border-gray-200 bg-white flex items-start justify-between">
+        <div>
+          <h2 className="text-lg font-medium text-gray-900">Timeline</h2>
+          <p className="text-sm text-gray-500">
+            Drag deliverable edges to adjust dates
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowExport(true)}
+          className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800"
+        >
+          Export
+        </button>
       </div>
 
-      <div className="flex-1 overflow-x-auto overflow-y-auto">
+      <div ref={scrollContainerRef} className="flex-1 overflow-x-auto overflow-y-auto">
         <div style={{ minWidth: `${352 + viewMonths * 80}px` }}>
           <GanttHeader viewStart={viewStart} viewMonths={viewMonths} />
 
@@ -111,6 +135,8 @@ export function GanttView() {
           </div>
         </div>
       </div>
+
+      <ExportModal isOpen={showExport} onClose={() => setShowExport(false)} />
     </div>
   );
 }

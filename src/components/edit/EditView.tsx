@@ -20,7 +20,19 @@ import { SortableGoalItem } from './SortableGoalItem';
 import type { Initiative, Deliverable, DeliverableStatus } from '../../types';
 
 export function EditView() {
-  const { state, dispatch } = useRoadmap();
+  const {
+    state,
+    addGoal,
+    updateGoal,
+    deleteGoal,
+    setGoalPriority,
+    addInitiative,
+    updateInitiative,
+    deleteInitiative,
+    addDeliverable,
+    updateDeliverable,
+    deleteDeliverable,
+  } = useRoadmap();
   const { roadmap } = state;
   const [isAddingGoal, setIsAddingGoal] = useState(false);
 
@@ -49,28 +61,28 @@ export function EditView() {
   };
 
   const handleAddGoal = (data: { name: string; description?: string; desiredOutcome: string }) => {
-    dispatch({ type: 'ADD_GOAL', payload: data });
+    addGoal(data);
     setIsAddingGoal(false);
   };
 
   const handleUpdateGoal = (goal: typeof roadmap.goals[0]) => {
-    dispatch({ type: 'UPDATE_GOAL', payload: goal });
+    updateGoal(goal);
   };
 
   const handleDeleteGoal = (id: string) => {
-    dispatch({ type: 'DELETE_GOAL', payload: id });
+    deleteGoal(id);
   };
 
   const handleAddInitiative = (goalId: string, data: { name: string; idealOutcome: string }) => {
-    dispatch({ type: 'ADD_INITIATIVE', payload: { ...data, goalId } });
+    addInitiative({ ...data, goalId });
   };
 
   const handleUpdateInitiative = (initiative: Initiative) => {
-    dispatch({ type: 'UPDATE_INITIATIVE', payload: initiative });
+    updateInitiative(initiative);
   };
 
   const handleDeleteInitiative = (id: string) => {
-    dispatch({ type: 'DELETE_INITIATIVE', payload: id });
+    deleteInitiative(id);
   };
 
   const handleAddDeliverable = (
@@ -83,15 +95,15 @@ export function EditView() {
       endDate?: string;
     }
   ) => {
-    dispatch({ type: 'ADD_DELIVERABLE', payload: { ...data, initiativeId } });
+    addDeliverable({ ...data, initiativeId });
   };
 
   const handleUpdateDeliverable = (deliverable: Deliverable) => {
-    dispatch({ type: 'UPDATE_DELIVERABLE', payload: deliverable });
+    updateDeliverable(deliverable);
   };
 
   const handleDeleteDeliverable = (id: string) => {
-    dispatch({ type: 'DELETE_DELIVERABLE', payload: id });
+    deleteDeliverable(id);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -104,7 +116,7 @@ export function EditView() {
       if (oldIndex !== -1 && newIndex !== -1) {
         // Calculate new priority based on new position (1-indexed)
         const newPriority = newIndex + 1;
-        dispatch({ type: 'SET_GOAL_PRIORITY', payload: { id: active.id as string, newPriority } });
+        setGoalPriority(active.id as string, newPriority);
       }
     }
   };

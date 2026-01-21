@@ -1,13 +1,32 @@
-import { useState } from 'react';
-import { useRoadmapData } from '../../context';
+import { useState, useEffect, useCallback } from 'react';
+import { useRoadmap, useRoadmapData } from '../../context';
 import { ViewSwitcher } from './ViewSwitcher';
 import { SettingsModal } from '../settings';
-import { ExportModal } from '../export';
 
 export function Toolbar() {
   const roadmap = useRoadmapData();
+  const { refreshData, state } = useRoadmap();
   const [showSettings, setShowSettings] = useState(false);
-  const [showExport, setShowExport] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshData();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refreshData]);
+
+  // Refresh data when window regains focus
+  useEffect(() => {
+    const handleFocus = () => {
+      handleRefresh();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [handleRefresh]);
 
   return (
     <>
@@ -18,24 +37,25 @@ export function Toolbar() {
             <ViewSwitcher />
             <button
               type="button"
+              onClick={handleRefresh}
+              disabled={isRefreshing || state.isLoading}
+              className="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-50"
+              title="Sync with Notion"
+            >
+              {isRefreshing ? 'Syncing...' : 'Sync'}
+            </button>
+            <button
+              type="button"
               onClick={() => setShowSettings(true)}
               className="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             >
               Settings
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowExport(true)}
-              className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800"
-            >
-              Export
             </button>
           </div>
         </div>
       </header>
 
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
-      <ExportModal isOpen={showExport} onClose={() => setShowExport(false)} />
     </>
   );
 }
